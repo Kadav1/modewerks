@@ -1,0 +1,129 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: system-ui, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", "DejaVu Sans Mono", "Ubuntu Mono", monospace;
+
+  /* Mapped Tailwind custom color utilities from the variables */
+  --color-az-bg-base: var(--az-bg-base);
+  --color-az-bg-alt: var(--az-bg-alt);
+  --color-az-bg-canvas: var(--az-bg-canvas);
+  --color-az-bg-workarea: var(--az-bg-workarea);
+  --color-az-bg-raised: var(--az-bg-raised);
+  --color-az-bg-soft: var(--az-bg-soft);
+  --color-az-bg-embedded: var(--az-bg-embedded);
+
+  --color-az-text-primary: var(--az-text-primary);
+  --color-az-text-heading: var(--az-text-heading);
+  --color-az-text-muted: var(--az-text-muted);
+  --color-az-text-faint: var(--az-text-faint);
+
+  --color-az-border-subtle: var(--az-border-subtle);
+  --color-az-border-default: var(--az-border-default);
+  --color-az-border-strong: var(--az-border-strong);
+
+  --color-az-active: var(--az-active);
+  --color-az-focus: var(--az-focus);
+  --color-az-success: var(--az-success);
+  --color-az-warning: var(--az-warning);
+  --color-az-danger: var(--az-danger);
+  --color-az-info: var(--az-info);
+}
+
+:root {
+  /* AZWERKS Radium Light Theme — canonical values from radium-palette-reference-v1.2 §3 */
+  --az-bg-base:     #f4f8ee;  /* sage-50  — primary light background */
+  --az-bg-alt:      #ecf4e4;  /* sage-100 — alternate light background */
+  --az-bg-canvas:   #e2ecd6;  /* sage-200 — canvas / working surface */
+  --az-bg-workarea: #d8e6ca;  /* sage-300 — secondary working surface */
+  --az-bg-raised:   #f4f8ee;  /* sage-50  — raised panels */
+  --az-bg-soft:     #ecf4e4;  /* sage-100 — soft utility surface */
+  --az-bg-embedded: #e2ecd6;  /* sage-200 — embedded / inset elements */
+
+  --az-text-primary: #1e2818;  /* light foreground — dark sage */
+  --az-text-heading: #1a2410;  /* radium-950 — heading 1 light */
+  --az-text-muted:   #4a6030;  /* light muted text */
+  --az-text-faint:   #526050;  /* sage-800 — faint supporting text */
+
+  --az-border-subtle:  #c4d8a0;  /* sage-400 — light divider */
+  --az-border-default: #a8c06a;  /* sage-500 — standard border */
+  --az-border-strong:  #8aaa44;  /* sage-550 — hover / emphasis border */
+
+  --az-active:  #5e7818;  /* radium-600 — action accent light */
+  --az-focus:   #4a6010;  /* radium-700 — focus ring light */
+  --az-success: #3f7e40;  /* success-600 */
+  --az-warning: #b06820;  /* warning-600 */
+  --az-danger:  #9a2828;  /* danger-600 */
+  --az-info:    #3c829e;  /* info-500 */
+}
+
+.dark {
+  /* AZWERKS Radium Dark Theme values */
+  --az-bg-base: #202521;
+  --az-bg-alt: #1d2220;
+  --az-bg-canvas: #171c19;
+  --az-bg-workarea: #23282b;
+  --az-bg-raised: #2b3031;
+  --az-bg-soft: #303735;
+  --az-bg-embedded: #212629;
+
+  --az-text-primary: #ddecc4;
+  --az-text-heading: #e8f4d0;
+  --az-text-muted: #94a87a;
+  --az-text-faint: #8e9290;
+
+  --az-border-subtle: #414747;
+  --az-border-default: #5a6060;
+  --az-border-strong: #767b7b;
+
+  --az-active: #ceda4a;
+  --az-focus: #d8e460;
+  --az-success: #67b067;
+  --az-warning: #c87828;
+  --az-danger: #c83838;
+  --az-info: #549db6;
+}
+
+/* Hide default scrollbars for high density look */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Slim custom scrollbar for cheatsheet columns */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 4px;
+}
+.dark ::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.01);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--az-border-subtle);
+  border-radius: 4px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: var(--az-border-default);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--az-border-default);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: var(--az-border-strong);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+}

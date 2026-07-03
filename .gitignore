@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+jspm_packages/
+web_modules/
+
+# Production build outputs
+dist/
+dist-ssr/
+build/
+
+# Cinnamon desklet packaging files
+*.zip
+tmp_staging/
+
+# Logs and errors
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment and local configs
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+!.env.example
+
+# Test coverage
+coverage/
+
+# IDE / Editor folders
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
