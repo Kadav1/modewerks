@@ -14,10 +14,12 @@ import {
   SlidersHorizontal, 
   BookOpen, 
   Sparkles,
-  RefreshCw
+  RefreshCw,
+  Play
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { List } from 'react-window';
+import LearningStartPanel from './LearningStartPanel';
 
 // Help helper for Category icon lookup
 const renderCategoryIcon = (iconName: string) => {
@@ -40,7 +42,7 @@ interface CommandRowProps {
   selectedCommandId: string | null;
   copiedId: string | null;
   isExpertMode: boolean;
-  setSelectedCommandId: React.Dispatch<React.SetStateAction<string | null>>;
+  setSelectedCommandId: (id: string | null) => void;
   handleCopy: (cmd: VimCommand) => void;
 }
 
@@ -181,7 +183,52 @@ const CommandRow = (props: RowComponentProps): React.ReactElement | null => {
 
 CommandRow.displayName = 'CommandRow';
 
-export default function CheatsheetList() {
+const getMnemonic = (key: string): string => {
+  switch (key) {
+    case 'h': return 'h sits on the left side of the hjkl movement cluster.';
+    case 'j': return 'j points down (looks like a hook pointing down).';
+    case 'k': return 'k stands for up (keep going up).';
+    case 'l': return 'l sits on the right side of the hjkl movement cluster.';
+    case 'i': return 'i stands for Insert (type text before cursor).';
+    case 'a': return 'a stands for Append (type text after cursor).';
+    case 'o': return 'o stands for Open (open a new line below).';
+    case 'u': return 'u stands for Undo.';
+    case 'r': return 'r stands for Replace.';
+    case 'w': return 'w stands for Word (move forward to next word).';
+    case 'b': return 'b stands for Backward (move back to previous word).';
+    case 'x': return 'x stands for eXtinguish/delete character.';
+    case 'y': return 'y stands for Yank (copy).';
+    case 'p': return 'p stands for Put (paste).';
+    case 'd': return 'd stands for Delete.';
+    case 'c': return 'c stands for Change.';
+    case '/': return '/ starts visual search forward.';
+    case 'n': return 'n stands for Next match.';
+    case ':w': return 'w stands for Write (save).';
+    case ':q': return 'q stands for Quit.';
+    default: return '';
+  }
+};
+
+const getRelatedKeys = (category: string, currentKey: string): string => {
+  switch (category) {
+    case 'motion': return 'h, j, k, l, w, b, e, gg, G';
+    case 'edit': return 'i, a, o, O, r, R, s, S, u, Esc';
+    case 'copy-paste': return 'y, yy, p, P, d, dd, x';
+    case 'search': return '/, ?, n, N, *, #';
+    case 'files': return ':w, :q, :wq, :x';
+    default: return 'None';
+  }
+};
+
+interface CheatsheetListProps {
+  selectedCommandId?: string | null;
+  setSelectedCommandId?: (id: string | null) => void;
+}
+
+export default function CheatsheetList({
+  selectedCommandId: propSelectedCommandId,
+  setSelectedCommandId: propSetSelectedCommandId,
+}: CheatsheetListProps = {}) {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [showOnlyCommon, setShowOnlyCommon] = useState(false);
@@ -189,9 +236,25 @@ export default function CheatsheetList() {
   const [activeSourceFilter, setActiveSourceFilter] = useState<'standard' | 'neovim' | 'azwerks' | null>(null);
   const [activeProfileFilter, setActiveProfileFilter] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [selectedCommandId, setSelectedCommandId] = useState<string | null>('m1');
+  
+  // Local state fallback if prop is not supplied
+  const [localSelectedCommandId, localSetSelectedCommandId] = useState<string | null>('m1');
+  const selectedCommandId = propSelectedCommandId !== undefined ? propSelectedCommandId : localSelectedCommandId;
+  const setSelectedCommandId = propSetSelectedCommandId || localSetSelectedCommandId;
+
   const [isExpertMode, setIsExpertMode] = useState(false);
   const [exportStatus, setExportStatus] = useState<'idle' | 'copied'>('idle');
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  
+  // Completed commands list read from localStorage
+  const completedCommands = useMemo(() => {
+    try {
+      const stored = localStorage.getItem('vim_sandbox_completed_commands');
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  }, []);
 
   const copyTimeoutRef = useRef<number | null>(null);
   const exportTimeoutRef = useRef<number | null>(null);
@@ -285,17 +348,49 @@ export default function CheatsheetList() {
 
   return (
     <div className="flex flex-col gap-4 w-full">
+      {/* Learning roadmap recommender */}
+      {completedCommands.length < 16 && (
+        <details className="group border border-az-border-subtle rounded-xl overflow-hidden bg-az-bg-alt font-sans" open={completedCommands.length === 0}>
+          <summary className="px-4 py-2 text-xs font-bold text-az-text-heading cursor-pointer list-none flex justify-between items-center hover:bg-az-bg-soft select-none">
+            <div className="flex items-center gap-1.5 font-mono text-[10.5px]">
+              <Sparkles className="w-3.5 h-3.5 text-az-active fill-az-active/10" />
+              <span>GUIDED LEARNING COMPANION PATH</span>
+            </div>
+            <span className="text-[10px] text-az-text-muted group-open:rotate-180 transition-transform">▼</span>
+          </summary>
+          <div className="p-3 border-t border-az-border-subtle bg-az-bg-canvas/30">
+            <LearningStartPanel
+              completedCommands={completedCommands}
+              onStartPractice={(taskIdx: number, cmd?: string) => {
+                if (cmd) {
+                  const cmdObj = VIM_COMMANDS.find(c => c.key === cmd);
+                  if (cmdObj) setSelectedCommandId(cmdObj.id);
+                }
+                // Redirect to sandbox tab
+                const sandboxBtn = document.querySelector('[aria-label="Practice Buffer sandbox tab"]') as HTMLButtonElement | null;
+                if (sandboxBtn) {
+                  sandboxBtn.click();
+                }
+                try {
+                  localStorage.setItem('vim_sandbox_target_task', taskIdx.toString());
+                  window.dispatchEvent(new CustomEvent('vim_sandbox_set_task', { detail: taskIdx }));
+                } catch {}
+              }}
+            />
+          </div>
+        </details>
+      )}
       
       {/* Search Bar Inputs & Quick Level filters */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
         
         {/* Main query bar */}
-        <div className="relative lg:col-span-5 md:col-span-1">
+        <div className="relative sm:col-span-4">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-az-text-muted" />
           <input
             id="cheatsheet-search-input"
             type="text"
-            placeholder="Search keys, descriptions or operators (e.g. ':wq', 'gg', 'yank')..."
+            placeholder="Search keys, descriptions..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-8.5 pr-14 py-1.5 bg-az-bg-canvas border border-az-border-subtle rounded-lg text-xs placeholder-az-text-faint focus:outline-none focus:ring-1.5 focus:ring-az-active/40 font-medium transition-all text-az-text-primary"
@@ -308,16 +403,16 @@ export default function CheatsheetList() {
         </div>
 
         {/* Common Commands checklist button */}
-        <div className="lg:col-span-3 md:col-span-1 flex border border-az-border-subtle bg-az-bg-alt rounded-lg p-0.5 font-sans text-[11px]">
+        <div className="sm:col-span-2 flex border border-az-border-subtle bg-az-bg-alt rounded-lg p-0.5 font-sans text-[10.5px]">
           <button
             onClick={() => setShowOnlyCommon(false)}
-            className={`flex-1 py-1 px-2 rounded transition-all font-medium cursor-pointer ${!showOnlyCommon ? 'bg-az-bg-workarea text-az-active shadow-sm border border-az-border-subtle/50' : 'text-az-text-muted hover:text-az-text-heading'}`}
+            className={`flex-1 py-0.5 px-1 rounded transition-all font-medium cursor-pointer ${!showOnlyCommon ? 'bg-az-bg-workarea text-az-active shadow-sm border border-az-border-subtle/50' : 'text-az-text-muted hover:text-az-text-heading'}`}
           >
-            All Vim ({VIM_COMMANDS.length})
+            All ({VIM_COMMANDS.length})
           </button>
           <button
             onClick={() => setShowOnlyCommon(true)}
-            className={`flex-1 py-1 px-2 rounded transition-all font-medium flex items-center justify-center gap-1.5 cursor-pointer ${showOnlyCommon ? 'bg-az-active text-az-bg-canvas font-bold shadow-sm' : 'text-az-text-muted hover:text-az-text-heading'}`}
+            className={`flex-1 py-0.5 px-1 rounded transition-all font-medium flex items-center justify-center gap-1 cursor-pointer ${showOnlyCommon ? 'bg-az-active text-az-bg-canvas font-bold shadow-sm' : 'text-az-text-muted hover:text-az-text-heading'}`}
           >
             <Sparkles className="w-3 h-3 fill-current" />
             <span>Essential</span>
@@ -325,29 +420,41 @@ export default function CheatsheetList() {
         </div>
 
         {/* Mode filter buttons bar */}
-        <div className="lg:col-span-2 md:col-span-1 flex border border-az-border-subtle bg-az-bg-alt rounded-lg p-0.5 font-mono text-[11px] text-az-text-muted">
+        <div className="sm:col-span-3 flex border border-az-border-subtle bg-az-bg-alt rounded-lg p-0.5 font-mono text-[10px] text-az-text-muted">
           <button
             onClick={() => setActiveModeFilter(null)}
-            className={`flex-1 py-1 rounded transition-all cursor-pointer ${!activeModeFilter ? 'bg-az-bg-workarea text-az-active shadow-sm border border-az-border-subtle/50 font-bold text-[10px]' : 'hover:text-az-text-heading text-[10px]'}`}
+            className={`flex-1 py-0.5 rounded transition-all cursor-pointer ${!activeModeFilter ? 'bg-az-bg-workarea text-az-active shadow-sm border border-az-border-subtle/50 font-bold' : 'hover:text-az-text-heading'}`}
           >
             All
           </button>
           <button
             onClick={() => setActiveModeFilter('normal')}
-            className={`flex-1 py-1 rounded transition-all cursor-pointer ${activeModeFilter === 'normal' ? 'bg-az-bg-workarea text-az-active shadow-sm border border-az-border-subtle/50 font-bold text-[10px]' : 'hover:text-az-text-heading text-[10px]'}`}
+            className={`flex-1 py-0.5 rounded transition-all cursor-pointer ${activeModeFilter === 'normal' ? 'bg-az-bg-workarea text-az-active shadow-sm border border-az-border-subtle/50 font-bold' : 'hover:text-az-text-heading'}`}
           >
             Norm
           </button>
           <button
             onClick={() => setActiveModeFilter('visual')}
-            className={`flex-1 py-1 rounded transition-all cursor-pointer ${activeModeFilter === 'visual' ? 'bg-az-bg-workarea text-az-active shadow-sm border border-az-border-subtle/50 font-bold text-[10px]' : 'hover:text-az-text-heading text-[10px]'}`}
+            className={`flex-1 py-0.5 rounded transition-all cursor-pointer ${activeModeFilter === 'visual' ? 'bg-az-bg-workarea text-az-active shadow-sm border border-az-border-subtle/50 font-bold' : 'hover:text-az-text-heading'}`}
           >
             Vis
+          </button>
+          <button
+            onClick={() => setActiveModeFilter('insert')}
+            className={`flex-1 py-0.5 rounded transition-all cursor-pointer ${activeModeFilter === 'insert' ? 'bg-az-bg-workarea text-az-active shadow-sm border border-az-border-subtle/50 font-bold' : 'hover:text-az-text-heading'}`}
+          >
+            Ins
+          </button>
+          <button
+            onClick={() => setActiveModeFilter('command-line')}
+            className={`flex-1 py-0.5 rounded transition-all cursor-pointer ${activeModeFilter === 'command-line' ? 'bg-az-bg-workarea text-az-active shadow-sm border border-az-border-subtle/50 font-bold' : 'hover:text-az-text-heading'}`}
+          >
+            Cmd
           </button>
         </div>
 
         {/* Expert Toggle Switch */}
-        <div className="lg:col-span-2 md:col-span-1 flex items-center justify-between border border-az-border-subtle bg-az-bg-alt rounded-lg px-2.5 py-1 text-[11px] font-sans">
+        <div className="sm:col-span-2 flex items-center justify-between border border-az-border-subtle bg-az-bg-alt rounded-lg px-2.5 py-0.5 text-[10.5px] font-sans">
           <span className="font-semibold text-az-text-muted flex items-center gap-1">
             <Zap className={`w-3.5 h-3.5 transition-colors ${isExpertMode ? 'text-az-warning fill-az-warning/20' : 'text-az-text-faint'}`} />
             Expert view
@@ -357,114 +464,133 @@ export default function CheatsheetList() {
             aria-checked={isExpertMode}
             aria-label="Expert view"
             onClick={() => setIsExpertMode(!isExpertMode)}
-            className={`relative inline-flex h-4.5 w-8 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+            className={`relative inline-flex h-4 w-7.5 shrink-0 cursor-pointer rounded-full border border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
               isExpertMode ? 'bg-az-active' : 'bg-az-bg-embedded border border-az-border-subtle'
             }`}
           >
             <span
-              className={`pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full bg-az-bg-workarea shadow ring-0 transition duration-200 ease-in-out ${
+              className={`pointer-events-none inline-block h-3 w-3 transform rounded-full bg-az-bg-workarea shadow ring-0 transition duration-200 ease-in-out ${
                 isExpertMode ? 'translate-x-3.5' : 'translate-x-0'
               }`}
             />
           </button>
         </div>
 
-      </div>
-
-      {/* Ledger & Profile Filtering Controls */}
-      <div className="flex flex-wrap items-center gap-3 py-1.5 px-2.5 rounded-lg bg-az-bg-alt border border-az-border-subtle text-xs">
-        <div className="flex items-center gap-2">
-          <span className="font-mono text-[9px] font-bold text-az-text-faint uppercase tracking-wider">Source Register:</span>
-          <div className="flex bg-az-bg-embedded p-0.5 rounded-md border border-az-border-subtle font-mono text-[10px]">
-            <button
-              onClick={() => {
-                setActiveSourceFilter(null);
-                setActiveProfileFilter(null);
-              }}
-              className={`px-2 py-0.5 rounded transition-all cursor-pointer ${!activeSourceFilter ? 'bg-az-bg-workarea text-az-active shadow-xs font-semibold' : 'text-az-text-muted hover:text-az-text-heading'}`}
-            >
-              All
-            </button>
-            <button
-              onClick={() => {
-                setActiveSourceFilter('standard');
-                setActiveProfileFilter(null);
-              }}
-              className={`px-2 py-0.5 rounded transition-all cursor-pointer ${activeSourceFilter === 'standard' ? 'bg-az-bg-workarea text-az-active shadow-xs font-semibold' : 'text-az-text-muted hover:text-az-text-heading'}`}
-            >
-              Vim Core
-            </button>
-            <button
-              onClick={() => {
-                setActiveSourceFilter('neovim');
-                setActiveProfileFilter(null);
-              }}
-              className={`px-2 py-0.5 rounded transition-all cursor-pointer ${activeSourceFilter === 'neovim' ? 'bg-az-bg-workarea text-az-active shadow-xs font-semibold' : 'text-az-text-muted hover:text-az-text-heading'}`}
-            >
-              Neovim
-            </button>
-            <button
-              onClick={() => {
-                setActiveSourceFilter('azwerks');
-                setActiveProfileFilter(null);
-              }}
-              className={`px-2 py-0.5 rounded transition-all cursor-pointer ${activeSourceFilter === 'azwerks' ? 'bg-az-bg-workarea text-az-active shadow-xs font-semibold' : 'text-az-text-muted hover:text-az-text-heading'}`}
-            >
-              AZWERKS
-            </button>
-          </div>
-        </div>
-
-        {availableProfiles.length > 0 && (
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-[9px] font-bold text-az-text-faint uppercase tracking-wider">Profile Ledger:</span>
-            <select
-              value={activeProfileFilter || ''}
-              onChange={(e) => setActiveProfileFilter(e.target.value || null)}
-              className="bg-az-bg-embedded px-2 py-0.5 rounded-md border border-az-border-subtle font-mono text-[10px] text-az-text-primary focus:outline-none focus:ring-1 focus:ring-az-active/30"
-            >
-              <option value="">All Profiles</option>
-              {availableProfiles.map((prof) => (
-                <option key={prof} value={prof}>
-                  {prof.replace('azwerks-', '').replace('-', ' ').toUpperCase()}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-      </div>
-
-      {/* Category Pills Slider Selector */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+        {/* Advanced Filters Expand/Collapse Toggle */}
         <button
-          onClick={() => setActiveCategory(null)}
-          className={`px-3 py-1 rounded-full text-[11px] font-semibold whitespace-nowrap transition-all border cursor-pointer ${
-            !activeCategory
-              ? 'bg-az-active text-az-bg-canvas border-az-active font-bold shadow-sm'
-              : 'bg-az-bg-soft hover:bg-az-bg-raised text-az-text-muted border-az-border-subtle'
+          onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+          className={`sm:col-span-1 py-1 px-2 rounded-lg border text-[10.5px] font-bold font-sans flex items-center justify-center gap-1 transition-all cursor-pointer ${
+            showAdvancedFilters 
+              ? 'bg-az-active/10 border-az-active text-az-active shadow-xs' 
+              : 'bg-az-bg-alt border-az-border-subtle text-az-text-muted hover:text-az-text-heading'
           }`}
+          title="Toggle advanced filters panel"
         >
-          All Categories
+          <SlidersHorizontal className="w-3.5 h-3.5" />
         </button>
 
-        {COMMAND_CATEGORIES.map((cat) => {
-          const isSelected = activeCategory === cat.id;
-          return (
-            <button
-               key={cat.id}
-               onClick={() => setActiveCategory(cat.id)}
-               className={`px-2.5 py-1 rounded-full text-[11px] whitespace-nowrap font-medium transition-all flex items-center gap-1 border cursor-pointer ${
-                 isSelected
-                   ? 'bg-az-active text-az-bg-canvas border-az-active font-bold shadow-sm'
-                   : `${cat.color} hover:opacity-85 text-xs`
-               }`}
-            >
-              {renderCategoryIcon(cat.icon)}
-              <span>{cat.name}</span>
-            </button>
-          );
-        })}
       </div>
+
+      {/* Advanced Collapsible Filters Panel */}
+      {showAdvancedFilters && (
+        <div className="bg-az-bg-alt border border-az-border-subtle p-3 rounded-xl flex flex-col gap-3.5 shadow-sm text-xs animate-fade-in font-sans">
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-[9px] font-bold text-az-text-faint uppercase tracking-wider">Sources:</span>
+              <div className="flex bg-az-bg-embedded p-0.5 rounded-md border border-az-border-subtle font-mono text-[10px]">
+                <button
+                  onClick={() => {
+                    setActiveSourceFilter(null);
+                    setActiveProfileFilter(null);
+                  }}
+                  className={`px-2 py-0.5 rounded transition-all cursor-pointer ${!activeSourceFilter ? 'bg-az-bg-workarea text-az-active shadow-xs font-semibold' : 'text-az-text-muted hover:text-az-text-heading'}`}
+                >
+                  All
+                </button>
+                <button
+                  onClick={() => {
+                    setActiveSourceFilter('standard');
+                    setActiveProfileFilter(null);
+                  }}
+                  className={`px-2 py-0.5 rounded transition-all cursor-pointer ${activeSourceFilter === 'standard' ? 'bg-az-bg-workarea text-az-active shadow-xs font-semibold' : 'text-az-text-muted hover:text-az-text-heading'}`}
+                >
+                  Vim Core
+                </button>
+                <button
+                  onClick={() => {
+                    setActiveSourceFilter('neovim');
+                    setActiveProfileFilter(null);
+                  }}
+                  className={`px-2 py-0.5 rounded transition-all cursor-pointer ${activeSourceFilter === 'neovim' ? 'bg-az-bg-workarea text-az-active shadow-xs font-semibold' : 'text-az-text-muted hover:text-az-text-heading'}`}
+                >
+                  Neovim
+                </button>
+                <button
+                  onClick={() => {
+                    setActiveSourceFilter('azwerks');
+                    setActiveProfileFilter(null);
+                  }}
+                  className={`px-2 py-0.5 rounded transition-all cursor-pointer ${activeSourceFilter === 'azwerks' ? 'bg-az-bg-workarea text-az-active shadow-xs font-semibold' : 'text-az-text-muted hover:text-az-text-heading'}`}
+                >
+                  AZWERKS
+                </button>
+              </div>
+            </div>
+
+            {availableProfiles.length > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-[9px] font-bold text-az-text-faint uppercase tracking-wider">Profiles:</span>
+                <select
+                  value={activeProfileFilter || ''}
+                  onChange={(e) => setActiveProfileFilter(e.target.value || null)}
+                  className="bg-az-bg-embedded px-2 py-0.5 rounded-md border border-az-border-subtle font-mono text-[10px] text-az-text-primary focus:outline-none focus:ring-1 focus:ring-az-active/30"
+                >
+                  <option value="">All Profiles</option>
+                  {availableProfiles.map((prof) => (
+                    <option key={prof} value={prof}>
+                      {prof.replace('azwerks-', '').replace('-', ' ').toUpperCase()}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-1">
+            <span className="font-mono text-[9px] font-bold text-az-text-faint uppercase tracking-wider block pl-0.5">Categories:</span>
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+              <button
+                onClick={() => setActiveCategory(null)}
+                className={`px-3 py-1 rounded-full text-[10.5px] font-semibold whitespace-nowrap transition-all border cursor-pointer ${
+                  !activeCategory
+                    ? 'bg-az-active text-az-bg-canvas border-az-active font-bold shadow-sm'
+                    : 'bg-az-bg-soft hover:bg-az-bg-raised text-az-text-muted border-az-border-subtle'
+                }`}
+              >
+                All Categories
+              </button>
+
+              {COMMAND_CATEGORIES.map((cat) => {
+                const isSelected = activeCategory === cat.id;
+                return (
+                  <button
+                     key={cat.id}
+                     onClick={() => setActiveCategory(cat.id)}
+                     className={`px-2.5 py-1 rounded-full text-[10.5px] whitespace-nowrap font-medium transition-all flex items-center gap-1 border cursor-pointer ${
+                       isSelected
+                         ? 'bg-az-active text-az-bg-canvas border-az-active font-bold shadow-sm'
+                         : `${cat.color} hover:opacity-85 text-xs`
+                     }`}
+                  >
+                    {renderCategoryIcon(cat.icon)}
+                    <span>{cat.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Database Main Content Body - Divided into Left List & Right Preview inspect panel */}
       <div className="grid grid-cols-12 gap-4 items-stretch">
@@ -624,38 +750,73 @@ export default function CheatsheetList() {
                 <>
                   {/* Standard Display */}
                   <div>
-                    <span className="text-[9.5px] font-mono uppercase tracking-wider text-az-text-faint block">Primary Action</span>
-                    <p className="text-az-text-heading font-semibold mt-1 bg-az-bg-workarea p-2 rounded-lg border border-az-border-subtle leading-relaxed text-[11.5px]">
-                      {selectedCommand.description}
-                    </p>
-                  </div>
-
-                  <div>
-                    <span className="text-[9.5px] font-mono uppercase tracking-wider text-az-text-faint block">Command Category</span>
-                    <div className="flex items-center gap-1.5 mt-1 text-[11px]">
-                      <span className="capitalize font-medium text-az-text-muted">
-                        {COMMAND_CATEGORIES.find((c) => c.id === selectedCommand.category)?.name || 'Vim Global Operator'}
+                    <span className="text-[9px] font-mono uppercase tracking-wider text-az-text-faint block">Command</span>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="px-2 py-1 rounded bg-az-bg-canvas border border-az-border-default font-mono font-extrabold text-az-active text-sm shadow-sm select-all">
+                        {selectedCommand.key}
                       </span>
-                      <span className="w-1 h-1 rounded-full bg-az-border-default" />
-                      <span className="text-az-text-faint text-[10px] font-mono capitalize">
+                      <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-az-bg-embedded text-az-text-muted border border-az-border-subtle font-semibold">
                         {selectedCommand.mode} Mode
                       </span>
                     </div>
                   </div>
 
+                  <div>
+                    <span className="text-[9px] font-mono uppercase tracking-wider text-az-text-faint block">Meaning</span>
+                    <p className="text-az-text-heading font-semibold mt-1 bg-az-bg-workarea p-2 rounded-lg border border-az-border-subtle leading-relaxed text-[11.5px]">
+                      {selectedCommand.description}
+                    </p>
+                  </div>
+
+                  {getMnemonic(selectedCommand.key) && (
+                    <div>
+                      <span className="text-[9px] font-mono uppercase tracking-wider text-az-text-faint block">Mnemonic</span>
+                      <p className="text-az-text-muted mt-1 leading-normal text-[11px] bg-az-bg-canvas/30 p-2 rounded border border-az-border-subtle/50">
+                        {getMnemonic(selectedCommand.key)}
+                      </p>
+                    </div>
+                  )}
+
                   {selectedCommand.notes && (
                     <div>
-                      <span className="text-[9.5px] font-mono uppercase tracking-wider text-az-text-faint block">Usage Notes & Tips</span>
+                      <span className="text-[9px] font-mono uppercase tracking-wider text-az-text-faint block">Usage Notes & Tips</span>
                       <p className="text-az-text-muted mt-0.5 italic leading-normal py-0.5 text-[11px]">
                         "{selectedCommand.notes}"
                       </p>
                     </div>
                   )}
 
+                  <div>
+                    <span className="text-[9px] font-mono uppercase tracking-wider text-az-text-faint block">Related Keys</span>
+                    <p className="text-az-text-muted mt-1 font-mono text-[10.5px]">
+                      {getRelatedKeys(selectedCommand.category, selectedCommand.key)}
+                    </p>
+                  </div>
+
                   {/* Context Action Guide help */}
                   <div className="bg-az-active/10 border border-az-active/10 p-2.5 rounded-lg mt-2 text-[10.5px] text-az-active">
                     <span className="font-bold block text-az-active mb-0.5">💡 Vim Action Trigger</span>
                     To use <span className="font-mono bg-az-bg-embedded px-1 py-0.5 rounded text-[10px] font-semibold text-az-text-primary">{selectedCommand.key}</span>, ensure you are in <span className="capitalize font-semibold">{selectedCommand.mode} mode</span> and press keys.
+                  </div>
+
+                  {/* Try it now action button */}
+                  <div className="pt-2">
+                    <button
+                      onClick={() => {
+                        const sandboxBtn = document.querySelector('[aria-label="Practice Buffer sandbox tab"]') as HTMLButtonElement | null;
+                        if (sandboxBtn) {
+                          sandboxBtn.click();
+                        }
+                        try {
+                          localStorage.setItem('vim_sandbox_target_command', selectedCommand.key);
+                          window.dispatchEvent(new CustomEvent('vim_sandbox_set_command', { detail: selectedCommand.key }));
+                        } catch {}
+                      }}
+                      className="w-full py-2 rounded-lg bg-az-active text-az-bg-canvas hover:opacity-90 font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm shadow-az-active/10"
+                    >
+                      <Play className="w-3.5 h-3.5 fill-current" />
+                      <span>Practice this command</span>
+                    </button>
                   </div>
                 </>
               )}
@@ -678,7 +839,7 @@ export default function CheatsheetList() {
                   : 'hover:text-az-active text-az-active font-bold cursor-pointer'
               }`}
             >
-              <Copy className="w-3 h-3" />
+              <Copy className="w-3.5 h-3.5" />
               <span>Copy Direct</span>
             </button>
           </div>

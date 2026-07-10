@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getWindowLayer, setWindowLayer, startWindowDrag, startWindowResize, WindowLayer } from '../lib/deskletIpc';
 import { 
   Settings, 
   RefreshCw, 
@@ -31,6 +32,8 @@ interface DeskletLayoutProps {
   keyboardLayout: 'ANSI' | 'ISO';
   setKeyboardLayout: (layout: 'ANSI' | 'ISO') => void;
   completedCommands: string[];
+  viewMode: 'compact' | 'workbench';
+  setViewMode: (mode: 'compact' | 'workbench') => void;
 }
 
 export default function DeskletLayout({
@@ -48,6 +51,8 @@ export default function DeskletLayout({
   keyboardLayout,
   setKeyboardLayout,
   completedCommands,
+  viewMode,
+  setViewMode,
 }: DeskletLayoutProps) {
   const totalCommands = 16;
   const completedCount = completedCommands.length;
@@ -59,21 +64,16 @@ export default function DeskletLayout({
     'modewerks v0.4.0 loaded successfully.'
   ]);
 
-  type WindowLayer = 'above' | 'normal' | 'below';
   const [windowLayer, setWindowLayerState] = useState<WindowLayer>('below');
 
   // Read current layer from Python on first open of settings
   const readLayerFromPython = () => {
-    try {
-      const layer = prompt('GET_LAYER', '') as WindowLayer | null;
-      if (layer && ['above', 'normal', 'below'].includes(layer)) {
-        setWindowLayerState(layer);
-      }
-    } catch { /* running in browser — ignore */ }
+    const layer = getWindowLayer();
+    setWindowLayerState(layer);
   };
 
-  const setWindowLayer = (layer: WindowLayer) => {
-    try { prompt(`SET_LAYER:${layer}`, ''); } catch { /* browser */ }
+  const handleSetWindowLayer = (layer: WindowLayer) => {
+    setWindowLayer(layer);
     setWindowLayerState(layer);
   };
 
@@ -112,14 +112,14 @@ export default function DeskletLayout({
 
     // Use synchronous prompt to halt JS execution and immediately trigger the GTK native drag 
     // during the same event loop tick as the actual mousedown
-    prompt("DRAG_START", "");
+    startWindowDrag();
   };
 
   const handleResizeStart = (e: React.MouseEvent) => {
     if (isLocked) return;
     if (e.button !== 0) return; // Only left click
     e.stopPropagation();
-    prompt("RESIZE_START", "");
+    startWindowResize();
   };
 
   return (
@@ -163,6 +163,30 @@ export default function DeskletLayout({
 
         {/* Window Controls */}
         <div className="flex items-center gap-2">
+          {/* View Mode Toggle Switch */}
+          <div className="no-drag flex items-center bg-az-bg-canvas border border-az-border-subtle p-0.5 rounded-lg text-[9px] font-mono leading-none mr-1.5">
+            <button
+              onClick={() => { setViewMode('compact'); addNotification('Switched to Compact Desklet mode.'); }}
+              className={`px-2 py-1 rounded transition-all cursor-pointer font-bold ${
+                viewMode === 'compact' 
+                  ? 'bg-az-active text-az-bg-canvas' 
+                  : 'text-az-text-muted hover:text-az-text-heading'
+              }`}
+            >
+              COMPACT
+            </button>
+            <button
+              onClick={() => { setViewMode('workbench'); addNotification('Switched to Expert Workbench mode.'); }}
+              className={`px-2 py-1 rounded transition-all cursor-pointer font-bold ${
+                viewMode === 'workbench' 
+                  ? 'bg-az-active text-az-bg-canvas' 
+                  : 'text-az-text-muted hover:text-az-text-heading'
+              }`}
+            >
+              WORKBENCH
+            </button>
+          </div>
+
           <button
             onClick={() => { onOpenTip(); addNotification('Opening Daily Vim Tip dialog...'); }}
             className="px-2 py-1 gap-1 inline-flex items-center rounded-md bg-az-warning/15 text-az-warning hover:bg-az-warning/25 text-[10px] font-mono font-bold transition-all border border-az-warning/20 cursor-pointer mr-1"
@@ -197,58 +221,65 @@ export default function DeskletLayout({
       </div>
 
       {/* Custom Tab Ribbon for quick-switching */}
-      <div className="flex items-center justify-between px-4 bg-az-bg-alt border-b border-az-border-subtle text-[11px] text-az-text-muted py-1 font-mono shrink-0">
-        <div className="flex items-center gap-1 sm:gap-2" role="tablist">
-          <button 
-            role="tab"
-            aria-selected={activeTab === 'cheatsheet'}
-            onClick={() => { setActiveTab('cheatsheet'); addNotification('Menu Switch: command index'); }}
-            className={`px-2 py-1 transition-all outline-none relative font-medium flex items-center gap-1.5 rounded cursor-pointer ${activeTab === 'cheatsheet' ? 'text-az-active bg-az-active/10 font-bold border border-az-active/15' : 'hover:text-az-text-heading hover:bg-az-bg-soft'}`}
-          >
-            <BookOpen className="w-3.5 h-3.5" />
-            <span className="hidden xs:inline">Command Index</span>
-          </button>
-          <button 
-            role="tab"
-            aria-selected={activeTab === 'keyboard'}
-            onClick={() => { setActiveTab('keyboard'); addNotification('Menu Switch: mode map'); }}
-            className={`px-2 py-1 transition-all outline-none relative font-medium flex items-center gap-1.5 rounded cursor-pointer ${activeTab === 'keyboard' ? 'text-az-active bg-az-active/10 font-bold border border-az-active/15' : 'hover:text-az-text-heading hover:bg-az-bg-soft'}`}
-          >
-            <Keyboard className="w-3.5 h-3.5" />
-            <span className="hidden xs:inline">Mode Map</span>
-          </button>
-          <button 
-            role="tab"
-            aria-selected={activeTab === 'sandbox'}
-            onClick={() => { setActiveTab('sandbox'); addNotification('Menu Switch: practice buffer'); }}
-            className={`px-2 py-1 transition-all outline-none relative font-medium flex items-center gap-1.5 rounded cursor-pointer ${activeTab === 'sandbox' ? 'text-az-active bg-az-active/10 font-bold border border-az-active/15' : 'hover:text-az-text-heading hover:bg-az-bg-soft'}`}
-          >
-            <Flame className="w-3.5 h-3.5" />
-            <span className="hidden xs:inline">Practice Buffer</span>
-          </button>
-          <button 
-            role="tab"
-            aria-selected={activeTab === 'configurator'}
-            onClick={() => { setActiveTab('configurator'); addNotification('Menu Switch: configuration ledger'); }}
-            className={`px-2 py-1 transition-all outline-none relative font-medium flex items-center gap-1.5 rounded cursor-pointer ${activeTab === 'configurator' ? 'text-az-active bg-az-active/10 font-bold border border-az-active/15' : 'hover:text-az-text-heading hover:bg-az-bg-soft'}`}
-          >
-            <Sliders className="w-3.5 h-3.5" />
-            <span className="hidden xs:inline">Config Ledger</span>
-          </button>
-          <button 
-            role="tab"
-            aria-selected={activeTab === 'troubleshooting'}
-            onClick={() => { setActiveTab('troubleshooting'); addNotification('Menu Switch: recovery procedures'); }}
-            className={`px-2 py-1 transition-all outline-none relative font-medium flex items-center gap-1.5 rounded cursor-pointer ${activeTab === 'troubleshooting' ? 'text-az-active bg-az-active/10 font-bold border border-az-active/15' : 'hover:text-az-text-heading hover:bg-az-bg-soft'}`}
-          >
-            <HeartPulse className="w-3.5 h-3.5" />
-            <span className="hidden xs:inline">Recovery Procedures</span>
-          </button>
+      {viewMode === 'workbench' && (
+        <div className="flex items-center justify-between px-4 bg-az-bg-alt border-b border-az-border-subtle text-[11px] text-az-text-muted py-1 font-mono shrink-0">
+          <div className="flex items-center gap-1 sm:gap-2" role="tablist">
+            <button 
+              role="tab"
+              aria-selected={activeTab === 'cheatsheet'}
+              aria-label="Command Lookup tab"
+              onClick={() => { setActiveTab('cheatsheet'); addNotification('Menu Switch: command index'); }}
+              className={`px-2.5 py-1 transition-all outline-none relative font-medium flex items-center gap-1.5 rounded cursor-pointer ${activeTab === 'cheatsheet' ? 'text-az-active bg-az-active/10 font-bold border border-az-active/15 shadow-sm' : 'hover:text-az-text-heading hover:bg-az-bg-soft'}`}
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              <span className="inline">Lookup</span>
+            </button>
+            <button 
+              role="tab"
+              aria-selected={activeTab === 'keyboard'}
+              aria-label="Keyboard Mode Map tab"
+              onClick={() => { setActiveTab('keyboard'); addNotification('Menu Switch: mode map'); }}
+              className={`px-2.5 py-1 transition-all outline-none relative font-medium flex items-center gap-1.5 rounded cursor-pointer ${activeTab === 'keyboard' ? 'text-az-active bg-az-active/10 font-bold border border-az-active/15 shadow-sm' : 'hover:text-az-text-heading hover:bg-az-bg-soft'}`}
+            >
+              <Keyboard className="w-3.5 h-3.5" />
+              <span className="inline">Keyboard</span>
+            </button>
+            <button 
+              role="tab"
+              aria-selected={activeTab === 'sandbox'}
+              aria-label="Practice Buffer sandbox tab"
+              onClick={() => { setActiveTab('sandbox'); addNotification('Menu Switch: practice buffer'); }}
+              className={`px-2.5 py-1 transition-all outline-none relative font-medium flex items-center gap-1.5 rounded cursor-pointer ${activeTab === 'sandbox' ? 'text-az-active bg-az-active/10 font-bold border border-az-active/15 shadow-sm' : 'hover:text-az-text-heading hover:bg-az-bg-soft'}`}
+            >
+              <Flame className="w-3.5 h-3.5" />
+              <span className="inline">Practice</span>
+            </button>
+            <button 
+              role="tab"
+              aria-selected={activeTab === 'configurator'}
+              aria-label="Vimrc Configuration builder tab"
+              onClick={() => { setActiveTab('configurator'); addNotification('Menu Switch: configuration ledger'); }}
+              className={`px-2.5 py-1 transition-all outline-none relative font-medium flex items-center gap-1.5 rounded cursor-pointer ${activeTab === 'configurator' ? 'text-az-active bg-az-active/10 font-bold border border-az-active/15 shadow-sm' : 'hover:text-az-text-heading hover:bg-az-bg-soft'}`}
+            >
+              <Sliders className="w-3.5 h-3.5" />
+              <span className="inline">Config</span>
+            </button>
+            <button 
+              role="tab"
+              aria-selected={activeTab === 'troubleshooting'}
+              aria-label="Recovery & Troubleshooting tab"
+              onClick={() => { setActiveTab('troubleshooting'); addNotification('Menu Switch: recovery procedures'); }}
+              className={`px-2.5 py-1 transition-all outline-none relative font-medium flex items-center gap-1.5 rounded cursor-pointer ${activeTab === 'troubleshooting' ? 'text-az-active bg-az-active/10 font-bold border border-az-active/15 shadow-sm' : 'hover:text-az-text-heading hover:bg-az-bg-soft'}`}
+            >
+              <HeartPulse className="w-3.5 h-3.5" />
+              <span className="inline">Recovery</span>
+            </button>
+          </div>
+          <div className="hidden md:block text-[10px] text-az-text-faint font-sans">
+            Use <span className="px-1.5 py-0.5 rounded bg-az-bg-embedded font-mono font-bold text-az-text-primary">Ctrl+K</span> to search
+          </div>
         </div>
-        <div className="hidden md:block text-[10px] text-az-text-faint font-sans">
-          Use <span className="px-1.5 py-0.5 rounded bg-az-bg-embedded font-mono font-bold text-az-text-primary">Ctrl+K</span> to search
-        </div>
-      </div>
+      )}
 
       {/* Main Content Area */}
       <div className="flex-1 relative overflow-hidden flex flex-col bg-az-bg-canvas">
@@ -341,7 +372,7 @@ export default function DeskletLayout({
                       <button
                         key={id}
                         onClick={() => {
-                          setWindowLayer(id);
+                          handleSetWindowLayer(id);
                           addNotification(`Window layer: ${label}.`);
                         }}
                         className={`flex-1 flex flex-col items-center gap-1 py-2 rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer ${

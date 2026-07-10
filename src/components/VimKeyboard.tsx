@@ -130,9 +130,15 @@ const COMBO_EXPLANATIONS: Record<string, string> = {
 
 interface VimKeyboardProps {
   layout?: 'ANSI' | 'ISO';
+  selectedCommandId?: string | null;
+  setSelectedCommandId?: (id: string | null) => void;
 }
 
-export default function VimKeyboard({ layout = 'ANSI' }: VimKeyboardProps) {
+export default function VimKeyboard({ 
+  layout = 'ANSI',
+  selectedCommandId,
+  setSelectedCommandId
+}: VimKeyboardProps) {
   const [activeMode, setActiveMode] = useState<'normal' | 'shift' | 'ctrl'>('normal');
   const [selectedKeyCode, setSelectedKeyCode] = useState<string>('KeyH');
   const [hoveredKey, setHoveredKey] = useState<KeyboardKey | null>(null);
@@ -179,7 +185,7 @@ export default function VimKeyboard({ layout = 'ANSI' }: VimKeyboardProps) {
       return 'bg-az-bg-alt border-az-border-subtle border-b-az-border-default/70 border-r-az-border-subtle/50 text-az-text-muted hover:bg-az-bg-workarea';
     }
 
-    const selectionRing = isSelected ? 'ring-2 ring-az-active/80 border-az-active text-az-text-heading font-extrabold shadow-[0_0_10px_rgba(206,218,74,0.2)] z-10 ' : '';
+    const selectionRing = isSelected ? 'ring-2.5 ring-az-active border-az-active text-az-text-heading font-black bg-az-active/35 shadow-[0_0_15px_rgba(206,218,74,0.4)] z-20 scale-[1.04] transition-all ' : '';
 
     if (overlayMode === 'category') {
       if (!hasCommand) {
@@ -740,78 +746,108 @@ export default function VimKeyboard({ layout = 'ANSI' }: VimKeyboardProps) {
       </div>
 
       {/* Dynamic Learning Heatmap Select controller */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-az-bg-alt p-3 rounded-xl border border-az-border-subtle font-sans">
-        <div className="flex flex-col gap-0.5">
-          <span className="text-[10px] font-mono font-bold text-az-active uppercase tracking-wider flex items-center gap-1.5">
-            <Zap className="w-3 h-3" />
-            Keymap learning overlay tools
-          </span>
-          <h3 className="text-[11.5px] font-bold text-az-text-heading">
-            Keys Prioritizer
-          </h3>
-          <p className="text-[11px] text-az-text-muted leading-tight">
-            {overlayMode === 'category' && 'Highlight map showing standard Vim category groupings (Motion vs Editing).'}
-            {overlayMode === 'frequency' && 'Heatmap showing common muscle-memory keys by typing density in everyday workflows.'}
-            {overlayMode === 'complexity' && 'Heatmap ranking keys by learning barrier (Beginner-friendly to power-user Macros).'}
-          </p>
+      <div className="flex flex-col gap-3 bg-az-bg-alt p-4 rounded-xl border border-az-border-subtle font-sans">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[10px] font-mono font-bold text-az-active uppercase tracking-wider flex items-center gap-1.5">
+              <Zap className="w-3 h-3" />
+              Keymap learning overlay tools
+            </span>
+            <h3 className="text-[12px] font-bold text-az-text-heading">
+              Keys Prioritizer
+            </h3>
+            <p className="text-[11px] text-az-text-muted leading-tight">
+              {overlayMode === 'category' && 'Highlight map showing standard Vim category groupings (Motion vs Editing).'}
+              {overlayMode === 'frequency' && 'Heatmap showing common muscle-memory keys by typing density in everyday workflows.'}
+              {overlayMode === 'complexity' && 'Heatmap ranking keys by learning barrier (Beginner-friendly to power-user Macros).'}
+            </p>
+          </div>
+
+          <div className="relative flex bg-az-bg-canvas border border-az-border-subtle p-0.5 rounded-lg text-[11px] font-semibold gap-0.5 w-full sm:w-auto z-0 overflow-hidden">
+            <button
+              onClick={() => setOverlayMode('category')}
+              className={`relative flex-1 sm:flex-none px-2.5 py-1 rounded transition-colors duration-350 font-bold z-10 cursor-pointer ${
+                overlayMode === 'category'
+                  ? 'text-az-bg-canvas'
+                  : 'text-az-text-muted hover:text-az-text-heading'
+              }`}
+            >
+              {overlayMode === 'category' && (
+                <motion.div
+                  layoutId="activeOverlayBg"
+                  className="absolute inset-0 bg-az-active rounded shadow-sm -z-10"
+                  transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+                />
+              )}
+              🎨 Categories
+            </button>
+            
+            <button
+              onClick={() => setOverlayMode('frequency')}
+              className={`relative flex-1 sm:flex-none px-2.5 py-1 rounded transition-colors duration-350 font-bold flex items-center justify-center gap-1 z-10 cursor-pointer ${
+                overlayMode === 'frequency'
+                  ? 'text-az-bg-canvas'
+                  : 'text-az-text-muted hover:text-az-text-heading'
+              }`}
+            >
+              {overlayMode === 'frequency' && (
+                <motion.div
+                  layoutId="activeOverlayBg"
+                  className="absolute inset-0 bg-az-danger rounded shadow-sm -z-10"
+                  transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+                />
+              )}
+              <Flame className="w-3 h-3" />
+              <span>🔥 Frequency</span>
+            </button>
+
+            <button
+              onClick={() => setOverlayMode('complexity')}
+              className={`relative flex-1 sm:flex-none px-2.5 py-1 rounded transition-colors duration-350 font-bold flex items-center justify-center gap-1 z-10 cursor-pointer ${
+                overlayMode === 'complexity'
+                  ? 'text-az-bg-canvas'
+                  : 'text-az-text-muted hover:text-az-text-heading'
+              }`}
+            >
+              {overlayMode === 'complexity' && (
+                <motion.div
+                  layoutId="activeOverlayBg"
+                  className="absolute inset-0 bg-az-info rounded shadow-sm -z-10"
+                  transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+                />
+              )}
+              <Brain className="w-3.5 h-3.5" />
+              <span>🧠 Complexity</span>
+            </button>
+          </div>
         </div>
 
-        <div className="relative flex bg-az-bg-canvas border border-az-border-subtle p-0.5 rounded-lg text-[11px] font-semibold gap-0.5 self-end w-full sm:w-auto z-0 overflow-hidden">
-          <button
-            onClick={() => setOverlayMode('category')}
-            className={`relative flex-1 sm:flex-none px-2.5 py-1 rounded transition-colors duration-350 font-bold z-10 cursor-pointer ${
-              overlayMode === 'category'
-                ? 'text-az-bg-canvas'
-                : 'text-az-text-muted hover:text-az-text-heading'
-            }`}
-          >
-            {overlayMode === 'category' && (
-              <motion.div
-                layoutId="activeOverlayBg"
-                className="absolute inset-0 bg-az-active rounded shadow-sm -z-10"
-                transition={{ type: 'spring', stiffness: 350, damping: 28 }}
-              />
-            )}
-            🎨 Category Groups
-          </button>
-          
-          <button
-            onClick={() => setOverlayMode('frequency')}
-            className={`relative flex-1 sm:flex-none px-2.5 py-1 rounded transition-colors duration-350 font-bold flex items-center justify-center gap-1 z-10 cursor-pointer ${
-              overlayMode === 'frequency'
-                ? 'text-az-bg-canvas'
-                : 'text-az-text-muted hover:text-az-text-heading'
-            }`}
-          >
-            {overlayMode === 'frequency' && (
-              <motion.div
-                layoutId="activeOverlayBg"
-                className="absolute inset-0 bg-az-danger rounded shadow-sm -z-10"
-                transition={{ type: 'spring', stiffness: 350, damping: 28 }}
-              />
-            )}
-            <Flame className="w-3 h-3" />
-            <span>🔥 Frequency Heat</span>
-          </button>
-
-          <button
-            onClick={() => setOverlayMode('complexity')}
-            className={`relative flex-1 sm:flex-none px-2.5 py-1 rounded transition-colors duration-350 font-bold flex items-center justify-center gap-1 z-10 cursor-pointer ${
-              overlayMode === 'complexity'
-                ? 'text-az-bg-canvas'
-                : 'text-az-text-muted hover:text-az-text-heading'
-            }`}
-          >
-            {overlayMode === 'complexity' && (
-              <motion.div
-                layoutId="activeOverlayBg"
-                className="absolute inset-0 bg-az-info rounded shadow-sm -z-10"
-                transition={{ type: 'spring', stiffness: 350, damping: 28 }}
-              />
-            )}
-            <Brain className="w-3.5 h-3.5" />
-            <span>🧠 Complexity Map</span>
-          </button>
+        {/* Unified Active Map Legend Bar */}
+        <div className="flex items-center gap-3 py-1.5 px-2.5 rounded-lg bg-az-bg-canvas/50 border border-az-border-subtle/50 text-[10px] font-mono">
+          <span className="text-az-text-faint font-bold uppercase tracking-wider mr-1">ACTIVE MAP LEGEND:</span>
+          {overlayMode === 'category' && (
+            <div className="flex flex-wrap items-center gap-4">
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-az-info/20 border border-az-info/50" /> Motions (Navigation)</span>
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-az-success/20 border border-az-success/50" /> Editing (Insertion)</span>
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-az-warning/20 border border-az-warning/50" /> Cut/Copy/Yank</span>
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-az-active/20 border border-az-active/50" /> Search/Find</span>
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-pink-500/20 border border-pink-500/50" /> Advanced Commands</span>
+            </div>
+          )}
+          {overlayMode === 'frequency' && (
+            <div className="flex flex-wrap items-center gap-4">
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-az-danger/20 border border-az-danger/70" /> 🔥 High Frequency (Daily Essentials)</span>
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-az-warning/20 border border-az-warning/60" /> ⚡ Medium Frequency (Structured Movements)</span>
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-az-bg-alt border border-az-border-subtle" /> 💤 Low Frequency (Specialty operations)</span>
+            </div>
+          )}
+          {overlayMode === 'complexity' && (
+            <div className="flex flex-wrap items-center gap-4">
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-az-success/20 border border-az-success/60" /> 🟢 Beginner (Movements & Insert)</span>
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-az-info/20 border border-az-info/60" /> 🔵 Intermediate (Yank/Find/Folds)</span>
+              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-purple-500/20 border border-purple-500/50" /> 🟣 Expert (Macros & Bookmarks)</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -880,33 +916,18 @@ export default function VimKeyboard({ layout = 'ANSI' }: VimKeyboardProps) {
         {/* PHYSICAL KEYBOARD SIMULATION BOARD */}
         <div className="lg:col-span-8 flex flex-col gap-1.5 bg-az-bg-canvas border border-az-border-subtle p-3.5 rounded-xl shadow-md w-full overflow-x-auto relative">
           
-          {/* Dynamic Key Legends inside board layout */}
-          <div className="absolute top-3.5 right-4 flex items-center gap-3.5 text-[9.5px] font-mono font-bold tracking-tight text-az-text-faint select-none">
-            {overlayMode === 'category' && (
-              <>
-                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-az-info/20 border border-az-info/40" /> Motions</span>
-                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-az-success/20 border border-az-success/40" /> Editing</span>
-                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-az-warning/20 border border-az-warning/40" /> Cut/Copy</span>
-                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-az-active/20 border border-az-active/40" /> Search</span>
-              </>
-            )}
-            {overlayMode === 'frequency' && (
-              <>
-                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-az-danger/20 border border-az-danger/70" /> 🔥 High</span>
-                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-az-warning/20 border border-az-warning/60" /> ⚡ Medium</span>
-                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-az-bg-alt border border-az-border-subtle" /> 💤 Low</span>
-              </>
-            )}
-            {overlayMode === 'complexity' && (
-              <>
-                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-az-success/20 border border-az-success/60" /> Easy</span>
-                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-az-info/20 border border-az-info/60" /> Mid</span>
-                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-purple-500/20 border border-purple-500/50" /> Hard</span>
-              </>
+          {/* Virtual Keyboard Header */}
+          <div className="flex justify-between items-center px-0.5 mb-2 select-none">
+            <span className="text-[10px] font-mono font-bold text-az-text-faint uppercase tracking-wider">
+              {layout} layout board
+            </span>
+            {listenPhysicalKeyboard && (
+              <span className="text-[9.5px] font-mono font-bold text-az-success flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-az-success animate-ping" />
+                Keyboard capture active
+              </span>
             )}
           </div>
-
-          <div className="h-6" /> {/* spacer under legends */}
 
           {/* ROW 0: Number Row */}
           <div id="row-0" className="flex gap-1 justify-between min-w-[620px]">

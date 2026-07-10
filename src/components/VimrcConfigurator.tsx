@@ -138,7 +138,7 @@ const PRESETS = {
     }
   },
   modern: {
-    name: 'Modern Hacker',
+    name: 'Modern Workspace',
     desc: 'Hybrid numbers, search refinements, pane splits, and 24-bit color (Recommended)',
     settings: {
       syntaxOn: true,
@@ -1391,356 +1391,370 @@ export default function VimrcConfigurator() {
             </div>
           </div>
 
-          {/* Section 5: lazy.nvim */}
-          <div className="bg-az-bg-alt rounded-xl border border-az-border-subtle p-4 space-y-3.5">
-            <div className="flex items-center justify-between border-b border-az-border-subtle pb-1.5">
-              <h3 className="text-[11px] font-mono font-bold uppercase tracking-wider text-az-text-heading flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-az-active" />
-                lazy.nvim plugin bootstrapper
-              </h3>
-              
-              <button 
-                role="switch"
-                aria-checked={settings.enableLazyNvim}
-                aria-label="lazy.nvim plugin bootstrapper"
-                onClick={(e) => { e.stopPropagation(); handleToggle('enableLazyNvim'); }}
-                className="flex items-center gap-1.5 cursor-pointer"
-              >
-                <span className="text-[10px] font-mono font-bold text-az-text-faint">BOOTSTRAP:</span>
-                {settings.enableLazyNvim ? <ToggleRight className="w-7 h-7 text-az-active" /> : <ToggleLeft className="w-7 h-7" />}
-              </button>
+          {/* Optional Advanced Settings */}
+          <details className="group border border-az-border-subtle rounded-xl overflow-hidden bg-az-bg-alt font-sans">
+            <summary className="px-4 py-3 text-xs font-bold text-az-text-heading cursor-pointer list-none flex justify-between items-center hover:bg-az-bg-soft select-none font-mono">
+              <div className="flex items-center gap-1.5">
+                <Sliders className="w-3.5 h-3.5 text-az-active" />
+                <span>OPTIONAL ADVANCED SETTINGS</span>
+              </div>
+              <span className="text-[10px] text-az-text-muted group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <div className="p-4 border-t border-az-border-subtle bg-az-bg-canvas/10 space-y-5 max-h-[420px] overflow-y-auto">
+
+              {/* Section 5: lazy.nvim */}
+              <div className="bg-az-bg-alt rounded-xl border border-az-border-subtle p-4 space-y-3.5">
+                <div className="flex items-center justify-between border-b border-az-border-subtle pb-1.5">
+                  <h3 className="text-[11px] font-mono font-bold uppercase tracking-wider text-az-text-heading flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-az-active" />
+                    lazy.nvim plugin bootstrapper
+                  </h3>
+                  
+                  <button 
+                    role="switch"
+                    aria-checked={settings.enableLazyNvim}
+                    aria-label="lazy.nvim plugin bootstrapper"
+                    onClick={(e) => { e.stopPropagation(); handleToggle('enableLazyNvim'); }}
+                    className="flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <span className="text-[10px] font-mono font-bold text-az-text-faint">BOOTSTRAP:</span>
+                    {settings.enableLazyNvim ? <ToggleRight className="w-7 h-7 text-az-active" /> : <ToggleLeft className="w-7 h-7" />}
+                  </button>
+                </div>
+
+                {settings.enableLazyNvim ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 pt-1">
+                    <div 
+                      onClick={() => handleToggle('installTelescope')}
+                      className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                        settings.installTelescope 
+                          ? 'border-az-active/30 bg-az-active/2 text-az-text-primary' 
+                          : 'border-az-border-subtle text-az-text-muted opacity-75 hover:opacity-100'
+                      }`}
+                    >
+                      <input 
+                        type="checkbox" 
+                        checked={settings.installTelescope}
+                        onChange={() => {}}
+                        className="mt-1 accent-[#ceda4a] cursor-pointer"
+                      />
+                      <div>
+                        <span className="text-xs font-bold block text-az-text-heading">Telescope Finder</span>
+                        <span className="text-[9.5px] text-az-text-muted mt-1 leading-relaxed block font-sans">
+                          Fuzzy finder search file lists and patterns inside workspace.
+                        </span>
+                      </div>
+                    </div>
+
+                    <div 
+                      onClick={() => handleToggle('installTreesitter')}
+                      className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                        settings.installTreesitter 
+                          ? 'border-az-active/30 bg-az-active/2 text-az-text-primary' 
+                          : 'border-az-border-subtle text-az-text-muted opacity-75 hover:opacity-100'
+                      }`}
+                    >
+                      <input 
+                        type="checkbox" 
+                        checked={settings.installTreesitter}
+                        onChange={() => {}}
+                        className="mt-1 accent-[#ceda4a] cursor-pointer"
+                      />
+                      <div>
+                        <span className="text-xs font-bold block text-az-text-heading">Treesitter Parsers</span>
+                        <span className="text-[9.5px] text-az-text-muted mt-1 leading-relaxed block font-sans">
+                          Enhanced code AST syntax highlights for multiple major languages.
+                        </span>
+                      </div>
+                    </div>
+
+                    <div 
+                      onClick={() => handleToggle('installLspZero')}
+                      className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                        settings.installLspZero 
+                          ? 'border-az-active/30 bg-az-active/2 text-az-text-primary' 
+                          : 'border-az-border-subtle text-az-text-muted opacity-75 hover:opacity-100'
+                      }`}
+                    >
+                      <input 
+                        type="checkbox" 
+                        checked={settings.installLspZero}
+                        onChange={() => {}}
+                        className="mt-1 accent-[#ceda4a] cursor-pointer"
+                      />
+                      <div>
+                        <span className="text-xs font-bold block text-az-text-heading">LSP Zero & Mason</span>
+                        <span className="text-[9.5px] text-az-text-muted mt-1 leading-relaxed block font-sans">
+                          Autocompletion registers, compiler diagnostics, and language servers.
+                        </span>
+                      </div>
+                    </div>
+
+                    <div 
+                      onClick={() => handleToggle('installNeoTree')}
+                      className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                        settings.installNeoTree 
+                          ? 'border-az-active/30 bg-az-active/2 text-az-text-primary' 
+                          : 'border-az-border-subtle text-az-text-muted opacity-75 hover:opacity-100'
+                      }`}
+                    >
+                      <input 
+                        type="checkbox" 
+                        checked={settings.installNeoTree}
+                        onChange={() => {}}
+                        className="mt-1 accent-[#ceda4a] cursor-pointer"
+                      />
+                      <div>
+                        <span className="text-xs font-bold block text-az-text-heading">Neo-Tree Explorer</span>
+                        <span className="text-[9.5px] text-az-text-muted mt-1 leading-relaxed block font-sans">
+                          Sidebar file system hierarchy and visual directory explorer.
+                        </span>
+                      </div>
+                    </div>
+
+                    <div 
+                      onClick={() => handleToggle('installGitsigns')}
+                      className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                        settings.installGitsigns 
+                          ? 'border-az-active/30 bg-az-active/2 text-az-text-primary' 
+                          : 'border-az-border-subtle text-az-text-muted opacity-75 hover:opacity-100'
+                      }`}
+                    >
+                      <input 
+                        type="checkbox" 
+                        checked={settings.installGitsigns}
+                        onChange={() => {}}
+                        className="mt-1 accent-[#ceda4a] cursor-pointer"
+                      />
+                      <div>
+                        <span className="text-xs font-bold block text-az-text-heading">Gitsigns Gutter</span>
+                        <span className="text-[9.5px] text-az-text-muted mt-1 leading-relaxed block font-sans">
+                          Gutter diff indicators for active Git revisions.
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-xs font-sans text-az-text-muted italic text-center py-4 bg-az-bg-embedded/30 border border-dashed border-az-border-subtle rounded-xl select-none">
+                    lazy.nvim plugin bootstrapper is disabled. Enable to inject package management templates into your init.lua.
+                  </p>
+                )}
+              </div>
+
+              {/* Section 6: Advanced UI Tunings */}
+              <div className="bg-az-bg-alt rounded-xl border border-az-border-subtle p-4 space-y-3.5">
+                <h3 className="text-[11px] font-mono font-bold uppercase tracking-wider text-az-text-heading border-b border-az-border-subtle pb-1.5 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-az-active" />
+                  ADVANCED UI TUNINGS
+                </h3>
+
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div 
+                      onClick={() => handleToggle('termguicolors')}
+                      className="flex items-center justify-between p-2.5 rounded-lg border border-az-border-subtle bg-az-bg-embedded hover:border-az-active/30 transition-all cursor-pointer group"
+                    >
+                      <div className="flex-1 pr-3">
+                        <span className="text-xs font-bold block text-az-text-heading">True RGB Color</span>
+                        <span className="text-[9px] text-az-text-muted mt-0.5 block font-sans">Enable 24-bit terminal colors (<code className="font-mono">termguicolors</code>).</span>
+                      </div>
+                      <button className="shrink-0 mt-0.5 text-az-text-muted group-hover:text-az-text-heading cursor-pointer">
+                        {settings.termguicolors ? <ToggleRight className="w-7 h-7 text-az-active" /> : <ToggleLeft className="w-7 h-7" />}
+                      </button>
+                    </div>
+
+                    <div 
+                      onClick={() => handleToggle('clipboard')}
+                      className="flex items-center justify-between p-2.5 rounded-lg border border-az-border-subtle bg-az-bg-embedded hover:border-az-active/30 transition-all cursor-pointer group"
+                    >
+                      <div className="flex-1 pr-3">
+                        <span className="text-xs font-bold block text-az-text-heading">System Clipboard</span>
+                        <span className="text-[9px] text-az-text-muted mt-0.5 block font-sans">Share clipboard with OS (<code className="font-mono">clipboard=unnamedplus</code>).</span>
+                      </div>
+                      <button className="shrink-0 mt-0.5 text-az-text-muted group-hover:text-az-text-heading cursor-pointer">
+                        {settings.clipboard ? <ToggleRight className="w-7 h-7 text-az-active" /> : <ToggleLeft className="w-7 h-7" />}
+                      </button>
+                    </div>
+
+                    <div 
+                      onClick={() => handleToggle('lazyredraw')}
+                      className="flex items-center justify-between p-2.5 rounded-lg border border-az-border-subtle bg-az-bg-embedded hover:border-az-active/30 transition-all cursor-pointer group"
+                    >
+                      <div className="flex-1 pr-3">
+                        <span className="text-xs font-bold block text-az-text-heading">Lazy Redraw Speedup</span>
+                        <span className="text-[9px] text-az-text-muted mt-0.5 block font-sans">Freeze redrawing during macros (<code className="font-mono">lazyredraw</code>).</span>
+                      </div>
+                      <button className="shrink-0 mt-0.5 text-az-text-muted group-hover:text-az-text-heading cursor-pointer">
+                        {settings.lazyredraw ? <ToggleRight className="w-7 h-7 text-az-active" /> : <ToggleLeft className="w-7 h-7" />}
+                      </button>
+                    </div>
+
+                    <div 
+                      onClick={() => handleToggle('hidden')}
+                      className="flex items-center justify-between p-2.5 rounded-lg border border-az-border-subtle bg-az-bg-embedded hover:border-az-active/30 transition-all cursor-pointer group"
+                    >
+                      <div className="flex-1 pr-3">
+                        <span className="text-xs font-bold block text-az-text-heading">Unsaved Buffers Switch</span>
+                        <span className="text-[9px] text-az-text-muted mt-0.5 block font-sans">Change file buffers without saving (<code className="font-mono">hidden</code>).</span>
+                      </div>
+                      <button className="shrink-0 mt-0.5 text-az-text-muted group-hover:text-az-text-heading cursor-pointer">
+                        {settings.hidden ? <ToggleRight className="w-7 h-7 text-az-active" /> : <ToggleLeft className="w-7 h-7" />}
+                      </button>
+                    </div>
+
+                    <div 
+                      onClick={() => handleToggle('cmdheight0')}
+                      className="flex items-center justify-between p-2.5 rounded-lg border border-az-border-subtle bg-az-bg-embedded hover:border-az-active/30 transition-all cursor-pointer group"
+                    >
+                      <div className="flex-1 pr-3">
+                        <span className="text-xs font-bold block text-az-text-heading">Hide Command Line</span>
+                        <span className="text-[9px] text-az-text-muted mt-0.5 block font-sans">Hides bottom command row when inactive (<code className="font-mono">cmdheight=0</code>).</span>
+                      </div>
+                      <button className="shrink-0 mt-0.5 text-az-text-muted group-hover:text-az-text-heading cursor-pointer">
+                        {settings.cmdheight0 ? <ToggleRight className="w-7 h-7 text-az-active" /> : <ToggleLeft className="w-7 h-7" />}
+                      </button>
+                    </div>
+
+                    <div 
+                      onClick={() => handleToggle('foldcolumn')}
+                      className="flex items-center justify-between p-2.5 rounded-lg border border-az-border-subtle bg-az-bg-embedded hover:border-az-active/30 transition-all cursor-pointer group"
+                    >
+                      <div className="flex-1 pr-3">
+                        <span className="text-xs font-bold block text-az-text-heading">Code Fold Column</span>
+                        <span className="text-[9px] text-az-text-muted mt-0.5 block font-sans">Displays a folding margin column (<code className="font-mono">foldcolumn=1</code>).</span>
+                      </div>
+                      <button className="shrink-0 mt-0.5 text-az-text-muted group-hover:text-az-text-heading cursor-pointer">
+                        {settings.foldcolumn ? <ToggleRight className="w-7 h-7 text-az-active" /> : <ToggleLeft className="w-7 h-7" />}
+                      </button>
+                    </div>
+
+                    <div 
+                      onClick={() => handleToggle('cursorcolumn')}
+                      className="flex items-center justify-between p-2.5 rounded-lg border border-az-border-subtle bg-az-bg-embedded hover:border-az-active/30 transition-all cursor-pointer group"
+                    >
+                      <div className="flex-1 pr-3">
+                        <span className="text-xs font-bold block text-az-text-heading">Highlight Cursor Column</span>
+                        <span className="text-[9px] text-az-text-muted mt-0.5 block font-sans">Draws vertical guide column line (<code className="font-mono">cursorcolumn</code>).</span>
+                      </div>
+                      <button className="shrink-0 mt-0.5 text-az-text-muted group-hover:text-az-text-heading cursor-pointer">
+                        {settings.cursorcolumn ? <ToggleRight className="w-7 h-7 text-az-active" /> : <ToggleLeft className="w-7 h-7" />}
+                      </button>
+                    </div>
+
+                    <div 
+                      onClick={() => handleToggle('spell')}
+                      className="flex items-center justify-between p-2.5 rounded-lg border border-az-border-subtle bg-az-bg-embedded hover:border-az-active/30 transition-all cursor-pointer group"
+                    >
+                      <div className="flex-1 pr-3">
+                        <span className="text-xs font-bold block text-az-text-heading">Spell Checker</span>
+                        <span className="text-[9px] text-az-text-muted mt-0.5 block font-sans">Highlights dictionary misspelling errors (<code className="font-mono">spell</code>).</span>
+                      </div>
+                      <button className="shrink-0 mt-0.5 text-az-text-muted group-hover:text-az-text-heading cursor-pointer">
+                        {settings.spell ? <ToggleRight className="w-7 h-7 text-az-active" /> : <ToggleLeft className="w-7 h-7" />}
+                      </button>
+                    </div>
+
+                    <div 
+                      onClick={() => handleToggle('numbertoggle')}
+                      className="flex items-center justify-between p-2.5 rounded-lg border border-az-border-subtle bg-az-bg-embedded hover:border-az-active/30 transition-all cursor-pointer group"
+                    >
+                      <div className="flex-1 pr-3">
+                        <span className="text-xs font-bold block text-az-text-heading">Dynamic Hybrid Numbers</span>
+                        <span className="text-[9px] text-az-text-muted mt-0.5 block font-sans">Relative in Normal mode, absolute in Insert mode.</span>
+                      </div>
+                      <button className="shrink-0 mt-0.5 text-az-text-muted group-hover:text-az-text-heading cursor-pointer">
+                        {settings.numbertoggle ? <ToggleRight className="w-7 h-7 text-az-active" /> : <ToggleLeft className="w-7 h-7" />}
+                      </button>
+                    </div>
+
+                    <div 
+                      onClick={() => handleToggle('virtualeditBlock')}
+                      className="flex items-center justify-between p-2.5 rounded-lg border border-az-border-subtle bg-az-bg-embedded hover:border-az-active/30 transition-all cursor-pointer group"
+                    >
+                      <div className="flex-1 pr-3">
+                        <span className="text-xs font-bold block text-az-text-heading">Visual Block Virtual Edit</span>
+                        <span className="text-[9px] text-az-text-muted mt-0.5 block font-sans">Cursor can move past line boundaries (<code className="font-mono">virtualedit=block</code>).</span>
+                      </div>
+                      <button className="shrink-0 mt-0.5 text-az-text-muted group-hover:text-az-text-heading cursor-pointer">
+                        {settings.virtualeditBlock ? <ToggleRight className="w-7 h-7 text-az-active" /> : <ToggleLeft className="w-7 h-7" />}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 7: Preset Specific Extensions */}
+              <div className="bg-az-bg-alt rounded-xl border border-az-border-subtle p-4 space-y-3.5 font-sans">
+                <h3 className="text-[11px] font-mono font-bold uppercase tracking-wider text-az-text-heading border-b border-az-border-subtle pb-1.5 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-az-active" />
+                  SPECIALIZED WORKSPACE PLUG-AND-PLAY UTILITIES
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                  <div 
+                    onClick={() => handleToggle('disableArrows')}
+                    className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                      settings.disableArrows 
+                        ? 'border-az-active/30 bg-az-active/2 text-az-text-primary' 
+                        : 'border-az-border-subtle text-az-text-muted opacity-75 hover:opacity-100'
+                    }`}
+                  >
+                    <input 
+                      type="checkbox" 
+                      checked={settings.disableArrows}
+                      onChange={() => {}}
+                      className="mt-1 accent-[#ceda4a] cursor-pointer"
+                    />
+                    <div>
+                      <span className="text-xs font-bold block text-az-text-heading">Disable Arrow Keys</span>
+                      <p className="text-[10px] text-az-text-muted mt-1 leading-relaxed">Map arrows to <code className="font-mono text-[9px]">&lt;Nop&gt;</code> to build pure muscle memory with `h/j/k/l` keys.</p>
+                    </div>
+                  </div>
+
+                  <div 
+                    onClick={() => handleToggle('compileOnF5')}
+                    className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                      settings.compileOnF5 
+                        ? 'border-az-active/30 bg-az-active/2 text-az-text-primary' 
+                        : 'border-az-border-subtle text-az-text-muted opacity-75 hover:opacity-100'
+                    }`}
+                  >
+                    <input 
+                      type="checkbox" 
+                      checked={settings.compileOnF5}
+                      onChange={() => {}}
+                      className="mt-1 accent-[#ceda4a] cursor-pointer"
+                    />
+                    <div>
+                      <span className="text-xs font-bold block text-az-text-heading">Compile &amp; Run [F5]</span>
+                      <p className="text-[10px] text-az-text-muted mt-1 leading-relaxed">Adds auto-compilation and terminal execution mappings for C++ and Python on <kbd className="px-1 py-0.5 bg-az-bg-embedded rounded font-mono text-[9.5px]">F5</kbd>.</p>
+                    </div>
+                  </div>
+
+                  <div 
+                    onClick={() => handleToggle('wrapLines')}
+                    className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                      settings.wrapLines 
+                        ? 'border-az-active/30 bg-az-active/2 text-az-text-primary' 
+                        : 'border-az-border-subtle text-az-text-muted opacity-75 hover:opacity-100'
+                    }`}
+                  >
+                    <input 
+                      type="checkbox" 
+                      checked={settings.wrapLines}
+                      onChange={() => {}}
+                      className="mt-1 accent-[#ceda4a] cursor-pointer"
+                    />
+                    <div>
+                      <span className="text-xs font-bold block text-az-text-heading">Enable Prose Line Wrap</span>
+                      <p className="text-[10px] text-az-text-muted mt-1 leading-relaxed">Configures text wrapping and line breaking at word boundaries (<code className="font-mono">wrap</code> and <code className="font-mono">linebreak</code>).</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             </div>
-
-            {settings.enableLazyNvim ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 pt-1">
-                <div 
-                  onClick={() => handleToggle('installTelescope')}
-                  className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
-                    settings.installTelescope 
-                      ? 'border-az-active/30 bg-az-active/2 text-az-text-primary' 
-                      : 'border-az-border-subtle text-az-text-muted opacity-75 hover:opacity-100'
-                  }`}
-                >
-                  <input 
-                    type="checkbox" 
-                    checked={settings.installTelescope}
-                    onChange={() => {}}
-                    className="mt-1 accent-[#ceda4a] cursor-pointer"
-                  />
-                  <div>
-                    <span className="text-xs font-bold block text-az-text-heading">Telescope Finder</span>
-                    <span className="text-[9.5px] text-az-text-muted mt-1 leading-relaxed block font-sans">
-                      Fuzzy finder search file lists and patterns inside workspace.
-                    </span>
-                  </div>
-                </div>
-
-                <div 
-                  onClick={() => handleToggle('installTreesitter')}
-                  className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
-                    settings.installTreesitter 
-                      ? 'border-az-active/30 bg-az-active/2 text-az-text-primary' 
-                      : 'border-az-border-subtle text-az-text-muted opacity-75 hover:opacity-100'
-                  }`}
-                >
-                  <input 
-                    type="checkbox" 
-                    checked={settings.installTreesitter}
-                    onChange={() => {}}
-                    className="mt-1 accent-[#ceda4a] cursor-pointer"
-                  />
-                  <div>
-                    <span className="text-xs font-bold block text-az-text-heading">Treesitter Parsers</span>
-                    <span className="text-[9.5px] text-az-text-muted mt-1 leading-relaxed block font-sans">
-                      Enhanced code AST syntax highlights for multiple major languages.
-                    </span>
-                  </div>
-                </div>
-
-                <div 
-                  onClick={() => handleToggle('installLspZero')}
-                  className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
-                    settings.installLspZero 
-                      ? 'border-az-active/30 bg-az-active/2 text-az-text-primary' 
-                      : 'border-az-border-subtle text-az-text-muted opacity-75 hover:opacity-100'
-                  }`}
-                >
-                  <input 
-                    type="checkbox" 
-                    checked={settings.installLspZero}
-                    onChange={() => {}}
-                    className="mt-1 accent-[#ceda4a] cursor-pointer"
-                  />
-                  <div>
-                    <span className="text-xs font-bold block text-az-text-heading">LSP Zero & Mason</span>
-                    <span className="text-[9.5px] text-az-text-muted mt-1 leading-relaxed block font-sans">
-                      Autocompletion registers, compiler diagnostics, and language servers.
-                    </span>
-                  </div>
-                </div>
-
-                <div 
-                  onClick={() => handleToggle('installNeoTree')}
-                  className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
-                    settings.installNeoTree 
-                      ? 'border-az-active/30 bg-az-active/2 text-az-text-primary' 
-                      : 'border-az-border-subtle text-az-text-muted opacity-75 hover:opacity-100'
-                  }`}
-                >
-                  <input 
-                    type="checkbox" 
-                    checked={settings.installNeoTree}
-                    onChange={() => {}}
-                    className="mt-1 accent-[#ceda4a] cursor-pointer"
-                  />
-                  <div>
-                    <span className="text-xs font-bold block text-az-text-heading">Neo-Tree Explorer</span>
-                    <span className="text-[9.5px] text-az-text-muted mt-1 leading-relaxed block font-sans">
-                      Sidebar file system hierarchy and visual directory explorer.
-                    </span>
-                  </div>
-                </div>
-
-                <div 
-                  onClick={() => handleToggle('installGitsigns')}
-                  className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
-                    settings.installGitsigns 
-                      ? 'border-az-active/30 bg-az-active/2 text-az-text-primary' 
-                      : 'border-az-border-subtle text-az-text-muted opacity-75 hover:opacity-100'
-                  }`}
-                >
-                  <input 
-                    type="checkbox" 
-                    checked={settings.installGitsigns}
-                    onChange={() => {}}
-                    className="mt-1 accent-[#ceda4a] cursor-pointer"
-                  />
-                  <div>
-                    <span className="text-xs font-bold block text-az-text-heading">Gitsigns Gutter</span>
-                    <span className="text-[9.5px] text-az-text-muted mt-1 leading-relaxed block font-sans">
-                      Gutter diff indicators for active Git revisions.
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <p className="text-xs font-sans text-az-text-muted italic text-center py-4 bg-az-bg-embedded/30 border border-dashed border-az-border-subtle rounded-xl select-none">
-                lazy.nvim plugin bootstrapper is disabled. Enable to inject package management templates into your init.lua.
-              </p>
-            )}
-          </div>
-
-          {/* Section 6: Advanced UI Tunings */}
-          <div className="bg-az-bg-alt rounded-xl border border-az-border-subtle p-4 space-y-3.5">
-            <h3 className="text-[11px] font-mono font-bold uppercase tracking-wider text-az-text-heading border-b border-az-border-subtle pb-1.5 flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-az-active" />
-              ADVANCED UI TUNINGS
-            </h3>
-
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div 
-                  onClick={() => handleToggle('termguicolors')}
-                  className="flex items-center justify-between p-2.5 rounded-lg border border-az-border-subtle bg-az-bg-embedded hover:border-az-active/30 transition-all cursor-pointer group"
-                >
-                  <div className="flex-1 pr-3">
-                    <span className="text-xs font-bold block text-az-text-heading">True RGB Color</span>
-                    <span className="text-[9px] text-az-text-muted mt-0.5 block font-sans">Enable 24-bit terminal colors (<code className="font-mono">termguicolors</code>).</span>
-                  </div>
-                  <button className="shrink-0 mt-0.5 text-az-text-muted group-hover:text-az-text-heading cursor-pointer">
-                    {settings.termguicolors ? <ToggleRight className="w-7 h-7 text-az-active" /> : <ToggleLeft className="w-7 h-7" />}
-                  </button>
-                </div>
-
-                <div 
-                  onClick={() => handleToggle('clipboard')}
-                  className="flex items-center justify-between p-2.5 rounded-lg border border-az-border-subtle bg-az-bg-embedded hover:border-az-active/30 transition-all cursor-pointer group"
-                >
-                  <div className="flex-1 pr-3">
-                    <span className="text-xs font-bold block text-az-text-heading">System Clipboard</span>
-                    <span className="text-[9px] text-az-text-muted mt-0.5 block font-sans">Share clipboard with OS (<code className="font-mono">clipboard=unnamedplus</code>).</span>
-                  </div>
-                  <button className="shrink-0 mt-0.5 text-az-text-muted group-hover:text-az-text-heading cursor-pointer">
-                    {settings.clipboard ? <ToggleRight className="w-7 h-7 text-az-active" /> : <ToggleLeft className="w-7 h-7" />}
-                  </button>
-                </div>
-
-                <div 
-                  onClick={() => handleToggle('lazyredraw')}
-                  className="flex items-center justify-between p-2.5 rounded-lg border border-az-border-subtle bg-az-bg-embedded hover:border-az-active/30 transition-all cursor-pointer group"
-                >
-                  <div className="flex-1 pr-3">
-                    <span className="text-xs font-bold block text-az-text-heading">Lazy Redraw Speedup</span>
-                    <span className="text-[9px] text-az-text-muted mt-0.5 block font-sans">Freeze redrawing during macros (<code className="font-mono">lazyredraw</code>).</span>
-                  </div>
-                  <button className="shrink-0 mt-0.5 text-az-text-muted group-hover:text-az-text-heading cursor-pointer">
-                    {settings.lazyredraw ? <ToggleRight className="w-7 h-7 text-az-active" /> : <ToggleLeft className="w-7 h-7" />}
-                  </button>
-                </div>
-
-                <div 
-                  onClick={() => handleToggle('hidden')}
-                  className="flex items-center justify-between p-2.5 rounded-lg border border-az-border-subtle bg-az-bg-embedded hover:border-az-active/30 transition-all cursor-pointer group"
-                >
-                  <div className="flex-1 pr-3">
-                    <span className="text-xs font-bold block text-az-text-heading">Unsaved Buffers Switch</span>
-                    <span className="text-[9px] text-az-text-muted mt-0.5 block font-sans">Change file buffers without saving (<code className="font-mono">hidden</code>).</span>
-                  </div>
-                  <button className="shrink-0 mt-0.5 text-az-text-muted group-hover:text-az-text-heading cursor-pointer">
-                    {settings.hidden ? <ToggleRight className="w-7 h-7 text-az-active" /> : <ToggleLeft className="w-7 h-7" />}
-                  </button>
-                </div>
-
-                <div 
-                  onClick={() => handleToggle('cmdheight0')}
-                  className="flex items-center justify-between p-2.5 rounded-lg border border-az-border-subtle bg-az-bg-embedded hover:border-az-active/30 transition-all cursor-pointer group"
-                >
-                  <div className="flex-1 pr-3">
-                    <span className="text-xs font-bold block text-az-text-heading">Hide Command Line</span>
-                    <span className="text-[9px] text-az-text-muted mt-0.5 block font-sans">Hides bottom command row when inactive (<code className="font-mono">cmdheight=0</code>).</span>
-                  </div>
-                  <button className="shrink-0 mt-0.5 text-az-text-muted group-hover:text-az-text-heading cursor-pointer">
-                    {settings.cmdheight0 ? <ToggleRight className="w-7 h-7 text-az-active" /> : <ToggleLeft className="w-7 h-7" />}
-                  </button>
-                </div>
-
-                <div 
-                  onClick={() => handleToggle('foldcolumn')}
-                  className="flex items-center justify-between p-2.5 rounded-lg border border-az-border-subtle bg-az-bg-embedded hover:border-az-active/30 transition-all cursor-pointer group"
-                >
-                  <div className="flex-1 pr-3">
-                    <span className="text-xs font-bold block text-az-text-heading">Code Fold Column</span>
-                    <span className="text-[9px] text-az-text-muted mt-0.5 block font-sans">Displays a folding margin column (<code className="font-mono">foldcolumn=1</code>).</span>
-                  </div>
-                  <button className="shrink-0 mt-0.5 text-az-text-muted group-hover:text-az-text-heading cursor-pointer">
-                    {settings.foldcolumn ? <ToggleRight className="w-7 h-7 text-az-active" /> : <ToggleLeft className="w-7 h-7" />}
-                  </button>
-                </div>
-
-                <div 
-                  onClick={() => handleToggle('cursorcolumn')}
-                  className="flex items-center justify-between p-2.5 rounded-lg border border-az-border-subtle bg-az-bg-embedded hover:border-az-active/30 transition-all cursor-pointer group"
-                >
-                  <div className="flex-1 pr-3">
-                    <span className="text-xs font-bold block text-az-text-heading">Highlight Cursor Column</span>
-                    <span className="text-[9px] text-az-text-muted mt-0.5 block font-sans">Draws vertical guide column line (<code className="font-mono">cursorcolumn</code>).</span>
-                  </div>
-                  <button className="shrink-0 mt-0.5 text-az-text-muted group-hover:text-az-text-heading cursor-pointer">
-                    {settings.cursorcolumn ? <ToggleRight className="w-7 h-7 text-az-active" /> : <ToggleLeft className="w-7 h-7" />}
-                  </button>
-                </div>
-
-                <div 
-                  onClick={() => handleToggle('spell')}
-                  className="flex items-center justify-between p-2.5 rounded-lg border border-az-border-subtle bg-az-bg-embedded hover:border-az-active/30 transition-all cursor-pointer group"
-                >
-                  <div className="flex-1 pr-3">
-                    <span className="text-xs font-bold block text-az-text-heading">Spell Checker</span>
-                    <span className="text-[9px] text-az-text-muted mt-0.5 block font-sans">Highlights dictionary misspelling errors (<code className="font-mono">spell</code>).</span>
-                  </div>
-                  <button className="shrink-0 mt-0.5 text-az-text-muted group-hover:text-az-text-heading cursor-pointer">
-                    {settings.spell ? <ToggleRight className="w-7 h-7 text-az-active" /> : <ToggleLeft className="w-7 h-7" />}
-                  </button>
-                </div>
-
-                <div 
-                  onClick={() => handleToggle('numbertoggle')}
-                  className="flex items-center justify-between p-2.5 rounded-lg border border-az-border-subtle bg-az-bg-embedded hover:border-az-active/30 transition-all cursor-pointer group"
-                >
-                  <div className="flex-1 pr-3">
-                    <span className="text-xs font-bold block text-az-text-heading">Dynamic Hybrid Numbers</span>
-                    <span className="text-[9px] text-az-text-muted mt-0.5 block font-sans">Relative in Normal mode, absolute in Insert mode.</span>
-                  </div>
-                  <button className="shrink-0 mt-0.5 text-az-text-muted group-hover:text-az-text-heading cursor-pointer">
-                    {settings.numbertoggle ? <ToggleRight className="w-7 h-7 text-az-active" /> : <ToggleLeft className="w-7 h-7" />}
-                  </button>
-                </div>
-
-                <div 
-                  onClick={() => handleToggle('virtualeditBlock')}
-                  className="flex items-center justify-between p-2.5 rounded-lg border border-az-border-subtle bg-az-bg-embedded hover:border-az-active/30 transition-all cursor-pointer group"
-                >
-                  <div className="flex-1 pr-3">
-                    <span className="text-xs font-bold block text-az-text-heading">Visual Block Virtual Edit</span>
-                    <span className="text-[9px] text-az-text-muted mt-0.5 block font-sans">Cursor can move past line boundaries (<code className="font-mono">virtualedit=block</code>).</span>
-                  </div>
-                  <button className="shrink-0 mt-0.5 text-az-text-muted group-hover:text-az-text-heading cursor-pointer">
-                    {settings.virtualeditBlock ? <ToggleRight className="w-7 h-7 text-az-active" /> : <ToggleLeft className="w-7 h-7" />}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Section 7: Preset Specific Extensions */}
-          <div className="bg-az-bg-alt rounded-xl border border-az-border-subtle p-4 space-y-3.5 font-sans">
-            <h3 className="text-[11px] font-mono font-bold uppercase tracking-wider text-az-text-heading border-b border-az-border-subtle pb-1.5 flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-az-active" />
-              SPECIALIZED WORKSPACE PLUG-AND-PLAY UTILITIES
-            </h3>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-              <div 
-                onClick={() => handleToggle('disableArrows')}
-                className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
-                  settings.disableArrows 
-                    ? 'border-az-active/30 bg-az-active/2 text-az-text-primary' 
-                    : 'border-az-border-subtle text-az-text-muted opacity-75 hover:opacity-100'
-                }`}
-              >
-                <input 
-                  type="checkbox" 
-                  checked={settings.disableArrows}
-                  onChange={() => {}}
-                  className="mt-1 accent-[#ceda4a] cursor-pointer"
-                />
-                <div>
-                  <span className="text-xs font-bold block text-az-text-heading">Disable Arrow Keys</span>
-                  <p className="text-[10px] text-az-text-muted mt-1 leading-relaxed">Map arrows to <code className="font-mono text-[9px]">&lt;Nop&gt;</code> to build pure muscle memory with `h/j/k/l` keys.</p>
-                </div>
-              </div>
-
-              <div 
-                onClick={() => handleToggle('compileOnF5')}
-                className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
-                  settings.compileOnF5 
-                    ? 'border-az-active/30 bg-az-active/2 text-az-text-primary' 
-                    : 'border-az-border-subtle text-az-text-muted opacity-75 hover:opacity-100'
-                }`}
-              >
-                <input 
-                  type="checkbox" 
-                  checked={settings.compileOnF5}
-                  onChange={() => {}}
-                  className="mt-1 accent-[#ceda4a] cursor-pointer"
-                />
-                <div>
-                  <span className="text-xs font-bold block text-az-text-heading">Compile &amp; Run [F5]</span>
-                  <p className="text-[10px] text-az-text-muted mt-1 leading-relaxed">Adds auto-compilation and terminal execution mappings for C++ and Python on <kbd className="px-1 py-0.5 bg-az-bg-embedded rounded font-mono text-[9.5px]">F5</kbd>.</p>
-                </div>
-              </div>
-
-              <div 
-                onClick={() => handleToggle('wrapLines')}
-                className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
-                  settings.wrapLines 
-                    ? 'border-az-active/30 bg-az-active/2 text-az-text-primary' 
-                    : 'border-az-border-subtle text-az-text-muted opacity-75 hover:opacity-100'
-                }`}
-              >
-                <input 
-                  type="checkbox" 
-                  checked={settings.wrapLines}
-                  onChange={() => {}}
-                  className="mt-1 accent-[#ceda4a] cursor-pointer"
-                />
-                <div>
-                  <span className="text-xs font-bold block text-az-text-heading">Enable Prose Line Wrap</span>
-                  <p className="text-[10px] text-az-text-muted mt-1 leading-relaxed">Configures text wrapping and line breaking at word boundaries (<code className="font-mono">wrap</code> and <code className="font-mono">linebreak</code>).</p>
-                </div>
-              </div>
-            </div>
-          </div>
+          </details>
 
         </div>
 

@@ -8,9 +8,9 @@ This directory contains the necessary package configurations, desktop wrappers, 
 
 Because standard Cinnamon desklet UI engines (called `St` - Shell Toolkit) run inside the primary window compositor thread of your desktop environment, running heavy custom layouts, canvas widgets, or JS sandboxes directly in the main shell thread is a risky pattern. If anything stalls, your entire Linux desktop temporarily freezes!
 
-To solve this, we use a **genius process-isolated architecture**:
-1. **The Controller (`desklet.js`)**: A lightweight native Cinnamon Desklet widget that registers with the Cinnamon system and sets a static active badge. When the desklet is loaded or destroyed, it perfectly manages, spawns, or kills the isolated UI thread.
-2. **The Sandboxed WebView (`desklet_webview.py`)**: A native background Python GObject helper that instantiates a fully borderless, sticky, keep-below, skipped-taskbar `WebKit2` window to render the React application off-thread. Because Linux Mint uses `PyGObject` and WebKit for its pre-installed Web App Manager, this configuration runs **completely out of the box** with maximum hardware acceleration and zero external package overhead!
+To solve this, we use a process-isolated architecture:
+1. **The Controller (`desklet.js`)**: A lightweight native Cinnamon Desklet widget that registers with the Cinnamon system. When the desklet is loaded or destroyed, it manages spawning or killing the isolated UI thread.
+2. **The Sandboxed WebView (`desklet_webview.py`)**: A native background Python GObject helper that instantiates a fully borderless, sticky, keep-below, skipped-taskbar `WebKit2` window to render the React application off-thread. This configuration runs efficiently using system-provided GTK3 and WebKit2 GI bindings.
 
 ---
 
@@ -32,9 +32,26 @@ sudo apt install python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.0
 
 *Note: After installing the packages, restart the Cinnamon desklet (by right-clicking on the desktop widget or reloading via the Desklets manager) to apply changes.*
 
+
 ---
 
-## 🚀 Easy Installation Guide (Step-by-Step)
+## 📦 Installation from Packaged Zip (Preferred for End Users)
+
+For standard users, installing from the pre-packaged zip is the recommended method:
+
+1. Create the desklet directory:
+   ```bash
+   mkdir -p ~/.local/share/cinnamon/desklets/modewerks@cinnamon.org
+   ```
+2. Unpack the zip contents:
+   ```bash
+   unzip modewerks@cinnamon.org.zip -d ~/.local/share/cinnamon/desklets/modewerks@cinnamon.org/
+   ```
+3. Open Cinnamon Desklets Settings and add **modewerks** to your desktop.
+
+---
+
+## 🚀 Installation from Source (Developers)
 
 ### Step 1: Open Terminal in Mint the Root Workspace
 Navigate to your project directory. To build and package the desklet to your Cinnamon environment automatically, run the quick bash installer:
@@ -60,3 +77,6 @@ chmod +x ./cinnamon-desklet/INSTALL.sh
 ## 🛠 Advanced Controls
 - **Reposition Panel**: To reposition the widget, simply left-click anywhere on the desklet surface and drag it across your screen.
 - **Stay Pinned**: The widget has a forced `keep_below` flag that acts exactly like a sticky wallpaper desklet, meaning it stays organized underneath open browser tabs or text editors, keeping your desk workspace clean!
+- **Singleton Instance**: The desklet is configured as a global singleton (`max-instances: 1`). Only one active widget window is permitted per user.
+- **Troubleshooting Stale Locks**: If the desklet fails to open due to a locked state, check or remove the lock file at `~/.cache/modewerks/modewerks.pid`.
+- **Verification**: For Linux Mint Cinnamon testing, use the checklist in the root [docs/modewerks-cinnamon-manual-verification-v0.1.md](file:///media/blndsft/SLP-ARCH-01/azwerks/vim-cheatsheet-desklet%20%281%29/docs/modewerks-cinnamon-manual-verification-v0.1.md).

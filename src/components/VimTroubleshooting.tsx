@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   HeartPulse, 
   HelpCircle, 
@@ -12,6 +12,7 @@ import {
   ArrowRight,
   Sparkles
 } from 'lucide-react';
+import RecoveryProblemPicker, { PROBLEMS } from './RecoveryProblemPicker';
 
 interface DiagnosticCommand {
   command: string;
@@ -126,6 +127,14 @@ const TROUBLESHOOTING_COMMANDS: DiagnosticCommand[] = [
 
 export default function VimTroubleshooting() {
   const [copiedCmd, setCopiedCmd] = useState<string | null>(null);
+  const [activeProblem, setActiveProblem] = useState<string | null>(null);
+
+  const filteredCommands = useMemo(() => {
+    if (!activeProblem) return TROUBLESHOOTING_COMMANDS;
+    const selected = PROBLEMS.find(p => p.id === activeProblem);
+    if (!selected) return TROUBLESHOOTING_COMMANDS;
+    return TROUBLESHOOTING_COMMANDS.filter(cmd => selected.commands.includes(cmd.command));
+  }, [activeProblem]);
   
   // Right workspace tabs: terminal | wizard | docs
   const [activeRightTab, setActiveRightTab] = useState<'terminal' | 'wizard' | 'docs'>('terminal');
@@ -427,9 +436,31 @@ export default function VimTroubleshooting() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
         
         {/* Left Side: Diagnostic Commands List */}
-        <div className="lg:col-span-7 flex flex-col gap-3">
+        <div className="lg:col-span-7 flex flex-col gap-4">
+          
+          <RecoveryProblemPicker 
+            activeProblem={activeProblem}
+            onSelectProblem={setActiveProblem}
+          />
+
           <div className="border border-az-border-subtle rounded-xl overflow-hidden bg-az-bg-alt shadow-xs">
-            <div className="grid grid-cols-12 gap-2 px-3 py-2 bg-az-bg-canvas border-b border-az-border-subtle text-[10px] font-mono font-bold tracking-wider text-az-text-faint">
+            <div className="flex items-center justify-between px-3 py-2 bg-az-bg-canvas border-b border-az-border-subtle text-[10px] font-mono font-bold tracking-wider text-az-text-faint">
+              <span>
+                {activeProblem 
+                  ? `RECOMMENDED DIAGNOSTIC COMMANDS (${filteredCommands.length})` 
+                  : 'ALL DIAGNOSTIC COMMANDS'}
+              </span>
+              {activeProblem && (
+                <button 
+                  onClick={() => setActiveProblem(null)}
+                  className="text-[9px] text-az-active hover:underline font-sans cursor-pointer"
+                >
+                  Clear Filter
+                </button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-12 gap-2 px-3 py-1.5 bg-az-bg-canvas/50 border-b border-az-border-subtle text-[9px] font-mono font-bold tracking-wider text-az-text-faint uppercase">
               <span className="col-span-3">COMMAND</span>
               <span className="col-span-2">CONTEXT</span>
               <span className="col-span-5">DIAGNOSTIC PURPOSE</span>
@@ -437,7 +468,7 @@ export default function VimTroubleshooting() {
             </div>
 
             <div className="divide-y divide-az-border-subtle font-mono text-xs">
-              {TROUBLESHOOTING_COMMANDS.map((item, idx) => (
+              {filteredCommands.map((item, idx) => (
                 <div 
                   key={idx}
                   className="grid grid-cols-12 gap-2 px-3 py-2.5 items-start hover:bg-az-bg-canvas transition-colors"

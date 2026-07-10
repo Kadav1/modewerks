@@ -6,6 +6,7 @@
 set -euo pipefail
 
 GREEN="\033[0;32m"
+RED="\033[0;31m"
 BOLD="\033[1m"
 BLUE="\033[0;34m"
 YELLOW="\033[1;33m"
@@ -57,6 +58,30 @@ rm -f "$STAGING_DIR/dist/server.cjs"
 rm -f "$STAGING_DIR/dist/server.cjs.map"
 
 chmod +x "$STAGING_DIR/desklet_webview.py"
+
+# Verify no forbidden files are in STAGING_DIR
+echo -e "${BLUE}[Verification] Verifying package contents...${NC}"
+FORBIDDEN_FOUND=0
+
+# List of forbidden directories
+if find "$STAGING_DIR" -type d \( -name "node_modules" -o -name ".git" -o -name "src" \) | grep -q .; then
+    echo -e "${RED}Forbidden directories found in staging area!${NC}" >&2
+    find "$STAGING_DIR" -type d \( -name "node_modules" -o -name ".git" -o -name "src" \) >&2
+    FORBIDDEN_FOUND=1
+fi
+
+# List of forbidden files
+if find "$STAGING_DIR" -type f \( -name "server.cjs" -o -name "server.cjs.map" -o -name "*.ts" -o -name "*.tsx" -o -name "*.map" \) | grep -q .; then
+    echo -e "${RED}Forbidden files found in staging area!${NC}" >&2
+    find "$STAGING_DIR" -type f \( -name "server.cjs" -o -name "server.cjs.map" -o -name "*.ts" -o -name "*.tsx" -o -name "*.map" \) >&2
+    FORBIDDEN_FOUND=1
+fi
+
+if [ $FORBIDDEN_FOUND -eq 1 ]; then
+    echo -e "${RED}Verification FAILED: Package contains forbidden files!${NC}" >&2
+    exit 1
+fi
+echo -e "${GREEN}✔ Verification passed. No forbidden files found.${NC}"
 
 # 4. Generate the zip file
 echo -e "${BLUE}[3/3] Archiving into clean zip file...${NC}"

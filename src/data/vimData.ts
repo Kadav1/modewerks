@@ -1087,7 +1087,2141 @@ export const VIM_COMMANDS: VimCommand[] = [
   { id: 'flsh2', key: 'S', description: 'Initiate Treesitter-based block flash selection', category: 'motion', mode: 'normal', source: 'neovim', plugin: 'flash.nvim', commandType: 'Keymap' },
   { id: 'flsh3', key: 'r', description: 'Trigger remote flash jump action (Operator-Pending mode)', category: 'motion', mode: 'normal', source: 'neovim', plugin: 'flash.nvim', commandType: 'Keymap' },
   { id: 'flsh4', key: 'R', description: 'Treesitter search flash selection (Visual / Operator-pending)', category: 'motion', mode: 'visual', source: 'neovim', plugin: 'flash.nvim', commandType: 'Keymap' },
-  { id: 'flsh5', key: '<C-s>', description: 'Toggle Flash Search during active forward/backward search', category: 'motion', mode: 'command-line', source: 'neovim', plugin: 'flash.nvim', commandType: 'Keymap' }
+  { id: 'flsh5', key: '<C-s>', description: 'Toggle Flash Search during active forward/backward search', category: 'motion', mode: 'command-line', source: 'neovim', plugin: 'flash.nvim', commandType: 'Keymap' },
+
+  {
+
+    id: 'az_c_1',
+
+    key: ':AzwerksHealth',
+
+    description: 'Runs custom AZWERKS configuration health checks. Inspects path validity, theme loading, and environment variables.',
+
+    category: 'neovim',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Core',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_2',
+
+    key: ':AzwerksFullHealth',
+
+    description: 'Runs the full Neovim `:checkhealth` command across all plugins and runtime configurations.',
+
+    category: 'neovim',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Core',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_3',
+
+    key: ':AzwerksTutor [file]',
+
+    description: 'Opens the Neovim tutor using the configuration\'s fallback loader to prevent blank buffers.',
+
+    category: 'neovim',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Core',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_4',
+
+    key: ':AzwerksEditConfig',
+
+    description: 'Opens the root Neovim starter configuration entry file (`init.lua`) in the current buffer.',
+
+    category: 'neovim',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Core',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_5',
+
+    key: ':AzwerksEditKeymaps',
+
+    description: 'Opens the core keymaps file (`lua/config/keymaps.lua`) in the current buffer.',
+
+    category: 'neovim',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Core',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_6',
+
+    key: ':AzwerksEditPlugins',
+
+    description: 'Opens the plugin specifications directory (`lua/plugins/`) where individual lazy.nvim specs are defined.',
+
+    category: 'neovim',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Core',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_7',
+
+    key: ':AzwerksReloadConfig',
+
+    description: 'Reloads the Neovim configuration. **Safety Gate:** Confirms with the user before executing local Lua config. If plugin specs have changed, prompts for a full restart.',
+
+    category: 'neovim',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Core',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_8',
+
+    key: ':AzwerksKeymaps',
+
+    description: 'Opens an interactive popup showing currently configured key mappings.',
+
+    category: 'neovim',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Core',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_9',
+
+    key: ':AzwerksPalette',
+
+    description: 'Opens the AZWERKS command reference/picker popup.',
+
+    category: 'neovim',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Core',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_10',
+
+    key: ':AzwerksTraining',
+
+    description: 'Opens the training workspace start page, if configured.',
+
+    category: 'neovim',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Core',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_11',
+
+    key: ':AzwerksObsidian',
+
+    description: 'Opens the configured Obsidian vault directory or provides setup instructions.',
+
+    category: 'neovim',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Core',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_12',
+
+    key: ':AzwerksScratch',
+
+    description: 'Opens a temporary scratch buffer using Markdown syntax for quick notes.',
+
+    category: 'neovim',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Core',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_13',
+
+    key: ':AzwerksProject',
+
+    description: 'Opens a popup displaying the active project profile and its details.',
+
+    category: 'files',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-project',
+
+    context: 'Project',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_14',
+
+    key: ':AzwerksProjectProfile',
+
+    description: 'Shows a detailed profile status including root folder, configuration source, project markers, and suggested task list.',
+
+    category: 'files',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-project',
+
+    context: 'Project',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_15',
+
+    key: ':AzwerksDetectProject',
+
+    description: 'Re-runs the scored profile detection algorithm for the active buffer.',
+
+    category: 'files',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-project',
+
+    context: 'Project',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_16',
+
+    key: ':AzwerksProjectRoot',
+
+    description: 'Prints the current detected project root path in the messages history.',
+
+    category: 'files',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-project',
+
+    context: 'Project',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_17',
+
+    key: ':AzwerksProjectRootExplain',
+
+    description: 'Explains why a workspace root was selected, showing confidence scores, matched markers, and alternate candidates.',
+
+    category: 'files',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-project',
+
+    context: 'Project',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_18',
+
+    key: ':AzwerksProjectCdRoot',
+
+    description: 'Changes the current window-local directory (`:lcd`) to the detected project root.',
+
+    category: 'files',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-project',
+
+    context: 'Project',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_19',
+
+    key: ':AzwerksProjectOpenRoot',
+
+    description: 'Opens the detected project root in the Oil file manager (or netrw fallback).',
+
+    category: 'files',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-project',
+
+    context: 'Project',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_20',
+
+    key: ':AzwerksProjectFiles',
+
+    description: 'Searches for files starting from the detected project root using Telescope.',
+
+    category: 'files',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-project',
+
+    context: 'Project',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_21',
+
+    key: ':AzwerksProjectGrep',
+
+    description: 'Runs a live grep search starting from the detected project root using Telescope.',
+
+    category: 'files',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-project',
+
+    context: 'Project',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_22',
+
+    key: ':AzwerksSetProjectProfile <profile> [root]',
+
+    description: 'Manually overrides the detected project profile. Auto-completes with available profiles.',
+
+    category: 'files',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-project',
+
+    context: 'Project',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_23',
+
+    key: ':AzwerksClearProjectProfile',
+
+    description: 'Clears the manual project profile override and returns to automatic scored detection.',
+
+    category: 'files',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-project',
+
+    context: 'Project',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_24',
+
+    key: ':AzwerksDocNew [type] [title]',
+
+    description: 'Creates a new document. If `type` or `title` is omitted, opens an interactive selector. Auto-completes types: `note`, `prompt`, `audit_report`, `report`, `spec`, `changelog`, `decision_record`.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_25',
+
+    key: ':AzwerksDocNewNote [title]',
+
+    description: 'Creates a new general note document in the current folder or vault inbox.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_26',
+
+    key: ':AzwerksDocNewPrompt [title]',
+
+    description: 'Creates a new AI prompt specification document in the `prompts/` subdirectory.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_27',
+
+    key: ':AzwerksDocNewAuditReport [title]',
+
+    description: 'Creates a new codebase/security audit report in the `audits/` subdirectory.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_28',
+
+    key: ':AzwerksDocNewImplementationReport [title]',
+
+    description: 'Creates a new feature implementation report in the `reports/` subdirectory.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_29',
+
+    key: ':AzwerksDocNewSpec [title]',
+
+    description: 'Creates a new technical specification document in the `specs/` subdirectory.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_30',
+
+    key: ':AzwerksDocNewChangelog [title]',
+
+    description: 'Creates a new changelog document in the workspace root.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_31',
+
+    key: ':AzwerksDocNewDecisionRecord [title]',
+
+    description: 'Creates a new Architecture Decision Record (ADR) in the `adr/` subdirectory.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_32',
+
+    key: ':AzwerksDocState',
+
+    description: 'Runs document-state inspection and opens a floating report auditing headings, status, and metadata correctness.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_33',
+
+    key: ':AzwerksDocSetStatus [status]',
+
+    description: 'Updates the status field in the YAML frontmatter. Auto-completes valid lifecycles: `draft`, `working`, `candidate`, `review`, `approved`, `canonical`, `archived`, `superseded`. Performs transition validation checks.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_34',
+
+    key: ':AzwerksDocPicker',
+
+    description: 'Opens the interactive Telescope document picker.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_35',
+
+    key: ':AzwerksDocHeadings',
+
+    description: 'Opens a Telescope pane to browse and jump to headings in the current Markdown file.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_36',
+
+    key: ':AzwerksDocMarkers',
+
+    description: 'Scans and lists all workflow markers (e.g. `TODO`, `FIXME`, `VERIFY`) inside the current document.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_37',
+
+    key: ':AzwerksDocLinks',
+
+    description: 'Extracts all outgoing links (relative paths, wikilinks, URLs) and allows following them.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_38',
+
+    key: ':AzwerksDocBacklinks',
+
+    description: 'Runs a project search to find all documents linking back to the current file and populates the Quickfix list.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_39',
+
+    key: ':AzwerksDocRelated',
+
+    description: 'Finds and lists related documents in the vault matching by status, tags, folder, or heuristics.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_40',
+
+    key: ':AzwerksMarkdownWorkbench',
+
+    description: 'Shows the workbench status, current working directory, and Obsidian environment variables.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_41',
+
+    key: ':AzwerksCheckMarkdownState',
+
+    description: 'Inspects the active Markdown buffer and shows frontmatter compliance, title heading, word counts, and task stats.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_42',
+
+    key: ':AzwerksNewNote [title]',
+
+    description: 'Creates a new Markdown file pre-filled with default note structure (frontmatter, purpose callout, and checklist).',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_43',
+
+    key: ':AzwerksInsertFrontmatter [title]',
+
+    description: 'Inserts standard YAML frontmatter at line 1 if it is missing in the current buffer.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_44',
+
+    key: ':AzwerksInsertCallout [type]',
+
+    description: 'Inserts an Obsidian callout block at the cursor. If a visual range is selected, wraps it in the callout. Type defaults to `note`.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_45',
+
+    key: ':AzwerksInsertObsidianLink [target]',
+
+    description: 'Inserts an Obsidian wikilink `[[target]]` at the cursor. If range is selected, wraps the selection.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_46',
+
+    key: ':AzwerksMarkdownTOC',
+
+    description: 'Generates or updates a Markdown table of contents between designated AZWERKS comment markers.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_47',
+
+    key: ':AzwerksOpenIndex',
+
+    description: 'Opens or creates the `00_Index.md` file in the workspace root directory.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_48',
+
+    key: ':AzwerksOpenInbox',
+
+    description: 'Opens or creates the inbox file `01_Inbox/Inbox.md`.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_49',
+
+    key: ':AzwerksMoveToArchive',
+
+    description: 'Safely moves the active file to `99_Archive/`, automatically appending timestamps to avoid collisions.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_50',
+
+    key: ':AzwerksVaultStatus',
+
+    description: 'Checks the index state and file integrity of the vault directory.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_51',
+
+    key: ':AzwerksVaultMaintenance',
+
+    description: 'Alias for `:AzwerksVaultStatus`.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_52',
+
+    key: ':AzwerksVaultReport',
+
+    description: 'Generates and opens a consolidated vault audit report.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_53',
+
+    key: ':AzwerksVaultCheckLinks',
+
+    description: 'Scans all files in the vault, checks link validity, and prints broken references.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_54',
+
+    key: ':AzwerksVaultCheckFrontmatter',
+
+    description: 'Validates that all Markdown documents contain correct YAML frontmatter syntax.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_55',
+
+    key: ':AzwerksVaultFindTodo',
+
+    description: 'Searches the vault for `TODO` or `FIXME` notes.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_56',
+
+    key: ':AzwerksVaultFindVerify',
+
+    description: 'Searches the vault for `VERIFY` checklists.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_57',
+
+    key: ':AzwerksVaultFindEmpty',
+
+    description: 'Finds empty files or documents containing only frontmatter.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_58',
+
+    key: ':AzwerksVaultFindDuplicateTitles',
+
+    description: 'Scans and lists notes sharing duplicate title values in their metadata.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_59',
+
+    key: ':AzwerksVaultFindOrphans',
+
+    description: 'Finds documents that have no incoming links from any other file in the vault.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_60',
+
+    key: ':AzwerksVaultDashboard',
+
+    description: 'Opens the high-level vault dashboard/index report.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_61',
+
+    key: ':AzwerksVaultRecent [count]',
+
+    description: 'Lists recently modified files in the quickfix list (defaults to `20`).',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_62',
+
+    key: ':AzwerksVaultChanged [count]',
+
+    description: 'Alias for `:AzwerksVaultRecent`.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_63',
+
+    key: ':AzwerksVaultByType [type]',
+
+    description: 'Lists documents filtered by type metadata. Without arguments, displays a summary of document types.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_64',
+
+    key: ':AzwerksVaultByStatus [status]',
+
+    description: 'Lists documents filtered by status metadata. Without arguments, displays a summary of statuses.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_65',
+
+    key: ':AzwerksVaultBrokenRefs',
+
+    description: 'Populates the quickfix list with all broken link paths found in the vault.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-markdown',
+
+    context: 'Vault',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_66',
+
+    key: ':AzwerksBufferReadStatus',
+
+    description: 'Checks read-safety flags for the current file to verify if the content was fully read from disk.',
+
+    category: 'files',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Safety',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_67',
+
+    key: ':AzwerksOilEntryStatus',
+
+    description: 'Assesses read safety of the directory entry under the cursor in an Oil buffer.',
+
+    category: 'files',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Safety',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_68',
+
+    key: ':AzwerksOilDiscard',
+
+    description: 'Safely discards pending modifications inside an Oil file manager buffer.',
+
+    category: 'files',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Safety',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_69',
+
+    key: ':AzwerksReadSafetyCheck',
+
+    description: 'Runs a validation check verifying if Neovim loaded the buffer content correctly.',
+
+    category: 'files',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Safety',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_70',
+
+    key: ':AzwerksSafetyStatus',
+
+    description: 'Displays the shared AZWERKS runtime safety policy and confirmation state.',
+
+    category: 'files',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Safety',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_71',
+
+    key: ':AzwerksCloseSurface',
+
+    description: 'Closes special surfaces (help, term, config, oil) safely without producing `[No Name]` buffers.',
+
+    category: 'files',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Safety',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_72',
+
+    key: ':AzwerksCloseBuffer',
+
+    description: 'Safely deletes the active buffer. Prevents closing the last file buffer to avoid leaving `[No Name]`.',
+
+    category: 'files',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Safety',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_73',
+
+    key: ':AzwerksCloseWindow',
+
+    description: 'Safely closes the active window split. Prevents closing the final file window to prevent Neovim exiting.',
+
+    category: 'files',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Safety',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_74',
+
+    key: ':AzwerksTaskStatus',
+
+    description: 'Opens a status window listing all profile-aware candidates and custom shell tasks.',
+
+    category: 'neovim',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Tasks',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_75',
+
+    key: ':AzwerksTaskRun [task]',
+
+    description: 'Opens the task selector. If a specific candidate key is passed, launches it immediately.',
+
+    category: 'neovim',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Tasks',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_76',
+
+    key: ':AzwerksTaskList',
+
+    description: 'Opens the overseer task execution list panel.',
+
+    category: 'neovim',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Tasks',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_77',
+
+    key: ':AzwerksTaskRefresh',
+
+    description: 'Re-scans project script directories and refreshes task candidate mappings.',
+
+    category: 'neovim',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Tasks',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_78',
+
+    key: ':AzwerksTerm [cmd]',
+
+    description: 'Opens a terminal buffer in a split. **Safety Gate:** Prompts for confirmation before running arbitrary shell scripts.',
+
+    category: 'neovim',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Tasks',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_79',
+
+    key: ':AzwerksTest',
+
+    description: 'Runs the test command inferred from the active project profile. **Safety Gate:** Prompts for confirmation before execution.',
+
+    category: 'neovim',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Tasks',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_80',
+
+    key: ':AzwerksArchiveStatus',
+
+    description: 'Opens a status view checking utility availability (`zip`, `tar`, `shasum`) and target directories.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Backup',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_81',
+
+    key: ':AzwerksArchiveCreateFile [format]',
+
+    description: 'Compresses the current buffer file. Format defaults to `zip`.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Backup',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_82',
+
+    key: ':AzwerksArchiveCreateDir [format]',
+
+    description: 'Compresses the current buffer\'s directory. Format defaults to `zip`.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Backup',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_83',
+
+    key: ':AzwerksArchiveCreateProject [format]',
+
+    description: 'Compresses the detected project root folder. Format defaults to `zip`.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Backup',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_84',
+
+    key: ':AzwerksArchiveCreatePath <path> [format]',
+
+    description: 'Compresses a user-provided path. **Safety Gate:** Broad roots (e.g. `$HOME`, `/`) require setting the environment variable `AZWERKS_ALLOW_BROAD_ARCHIVE=1`.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Backup',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_85',
+
+    key: ':AzwerksArchiveVerify [path]',
+
+    description: 'Unpacks the archive file to verify file integrity and computes/verifies SHA256 checksums.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Backup',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_86',
+
+    key: ':AzwerksArchiveOpenOutput',
+
+    description: 'Opens the archive output location in Oil or netrw.',
+
+    category: 'advanced',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Backup',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_87',
+
+    key: ':AzwerksThemeReload',
+
+    description: 'Reloads the vendored Radium theme and resets highlight values.',
+
+    category: 'neovim',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'UI',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_88',
+
+    key: ':AzwerksThemeStatus',
+
+    description: 'Inspects the active colorscheme paths, highlights, and contrast values.',
+
+    category: 'neovim',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'UI',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_89',
+
+    key: ':AzwerksVisualStatus',
+
+    description: 'Shows UI status, plugin integrations, window layouts, and formatting tools.',
+
+    category: 'neovim',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'UI',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_90',
+
+    key: ':AzwerksDashboard',
+
+    description: 'Opens the native AZWERKS dashboard file picker and project index screen.',
+
+    category: 'neovim',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'UI',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_91',
+
+    key: ':AzwerksShellStatus',
+
+    description: 'Inspects the interface shell status and active dropbar.nvim winbar bindings.',
+
+    category: 'neovim',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'UI',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_92',
+
+    key: ':FormatDisable None / !',
+
+    description: 'Disables autoformat-on-save globally, or locally for the active buffer if appended with `!`.',
+
+    category: 'neovim',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Formatting',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_93',
+
+    key: ':FormatEnable',
+
+    description: 'Re-enables autoformat-on-save globally and locally.',
+
+    category: 'neovim',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Formatting',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_94',
+
+    key: ':AzwerksFormatStatus',
+
+    description: 'Displays what formatting tools (`stylua`, `black`, `prettier`) and linters are active for the file type.',
+
+    category: 'neovim',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Formatting',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_95',
+
+    key: ':AzwerksConformFormatStatus',
+
+    description: 'Shows detailed formatter state from the conform.nvim plugin.',
+
+    category: 'neovim',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Formatting',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_96',
+
+    key: ':AzwerksTreesitterInstall',
+
+    description: 'Installs language parsers needed for syntax highlighting. **Safety Gate:** Confirms prior to installation.',
+
+    category: 'neovim',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Formatting',
+
+    commandType: 'Command'
+
+  },
+
+  {
+
+    id: 'az_c_97',
+
+    key: ':AzwerksTreesitterUpdate',
+
+    description: 'Updates all installed language parsers. **Safety Gate:** Confirms prior to updating.',
+
+    category: 'neovim',
+
+    mode: 'command-line',
+
+    source: 'azwerks',
+
+    profile: 'azwerks-system',
+
+    context: 'Formatting',
+
+    commandType: 'Command'
+
+  }
 ];
 
 

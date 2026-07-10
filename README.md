@@ -41,23 +41,33 @@ Built for performance and utility, it serves as a local reference guide, sandbox
 
 ## 🚀 Installation (Linux Mint / Cinnamon)
 
-The desklet comes with installation and packaging scripts to keep the production files lightweight.
+### Preferred Method (Packaged Zip)
 
-### Prerequisites
-- Node.js (v18 or higher recommended)
-- Cinnamon Desktop Environment
+For end users, installing the pre-packaged zip is the recommended method:
 
-### Setup Steps
+1. Create the target directory:
+   ```bash
+   mkdir -p ~/.local/share/cinnamon/desklets/modewerks@cinnamon.org
+   ```
+2. Unpack the zip archive:
+   ```bash
+   unzip modewerks@cinnamon.org.zip -d ~/.local/share/cinnamon/desklets/modewerks@cinnamon.org/
+   ```
+3. Open Cinnamon Desklets Settings and add **modewerks** to your desktop.
+
+### Developer Method (From Source)
+
+Building from source requires Node.js (v18 or higher):
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/modewerks.git
+   git clone https://github.com/azwerks/modewerks.git
    cd modewerks
    ```
 
 2. **Install JavaScript Dependencies:**
    ```bash
-   npm install
+   npm ci
    ```
 
 3. **Build and Install Locally:**
@@ -83,9 +93,11 @@ The desklet comes with installation and packaging scripts to keep the production
 
 ## ⚙️ Window Layers & Persistence Config
 
-The desklet incorporates native window behavior controls and persistent state storage:
+The desklet incorporates native window behavior controls, singleton locks, and persistent state storage:
 - **Dynamic Window Stacking Layers**: Toggle the desklet's stacking hierarchy between `Above` (floats above all other application viewports), `Normal` (standard window placement), and `Below` (stays pinned underneath other windows, functioning as active desktop wallpaper).
 - **Persistent Geometry Settings**: Window coordinates (x, y), size dimensions (width, height), and the selected stacking layer are automatically saved to `~/.config/modewerks.ini` whenever repositioned or resized. The configuration file is read on startup to ensure layout consistency.
+- **Singleton Instance Limit**: The desklet is configured as a global singleton (`max-instances: 1`). Only one active widget window is permitted per user. Spawning a new instance automatically cleans up and terminates any stale or running webview processes to prevent orphaned windows.
+- **Manual Verification**: Before promoting to full public release, manual workstation testing must be executed using the [docs/modewerks-cinnamon-manual-verification-v0.1.md](file:///media/blndsft/SLP-ARCH-01/azwerks/vim-cheatsheet-desklet%20%281%29/docs/modewerks-cinnamon-manual-verification-v0.1.md) template.
 
 ## 🛠️ Development
 

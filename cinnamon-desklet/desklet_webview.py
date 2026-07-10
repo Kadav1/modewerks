@@ -13,6 +13,93 @@ LOG_FILE = os.path.expanduser(
 )
 CONFIG_FILE = os.path.expanduser("~/.config/modewerks.ini")
 
+
+def acquire_lock():
+    # Note: modewerks is intentionally configured as a singleton desklet
+    # (via max-instances: 1 in metadata.json). Therefore, we use a global
+    # user-level PID lock file to prevent duplicate window instances.
+    # Cache directory
+    cache_dir = os.path.expanduser("~/.cache/modewerks")
+    pid_file = os.path.join(cache_dir, "modewerks.pid")
+    os.makedirs(cache_dir, exist_ok=True)
+
+    if os.path.exists(pid_file):
+        try:
+            with open(pid_file, "r") as f:
+                old_pid_str = f.read().strip()
+                if old_pid_str:
+                    old_pid = int(old_pid_str)
+                    # Check if the process is still running
+                    # On Unix, kill(pid, 0) checks if process exists
+                    try:
+                        os.kill(old_pid, 0)
+                        # Process exists. Is it another modewerks process?
+                        # We can inspect /proc/<pid>/cmdline to make sure it's not a different reused PID
+                        proc_cmd_path = f"/proc/{old_pid}/cmdline"
+                        is_modewerks = False
+                        if os.path.exists(proc_cmd_path):
+                            with open(proc_cmd_path, "rb") as cf:
+                                cmdline = cf.read().decode('utf-8', errors='ignore')
+                                if "desklet_webview.py" in cmdline:
+                                    is_modewerks = True
+                        else:
+                            # Fallback if not on Linux or /proc is not available
+                            is_modewerks = True
+                        
+                        if is_modewerks:
+                            log(f"Stale-instance guard: Found existing running WebView process (PID: {old_pid}). Terminating it...")
+                            # Terminate it gracefully first (SIGTERM)
+                            try:
+                                os.kill(old_pid, 15) # SIGTERM
+                                import time
+                                for _ in range(10):
+                                    time.sleep(0.1)
+                                    try:
+                                        os.kill(old_pid, 0)
+                                    except OSError:
+                                        # Process is gone
+                                        break
+                                else:
+                                    # Still alive, send SIGKILL
+                                    os.kill(old_pid, 9)
+                            except OSError:
+                                pass
+                    except OSError:
+                        # Process is not running (e.g. crashed previously), ignore and recover
+                        log(f"Stale-instance guard: PID {old_pid} in lock file is not running. Recovering.")
+        except Exception as e:
+            log(f"Stale-instance guard error checking lock file: {e}. Recovering.")
+
+    # Write current PID to lock file
+    try:
+        current_pid = os.getpid()
+        with open(pid_file, "w") as f:
+            f.write(str(current_pid))
+        log(f"Acquired instance lock for PID: {current_pid}")
+    except Exception as e:
+        log(f"Failed to write PID lock file: {e}")
+
+
+def release_lock():
+    # Note: Singleton policy lock cleanup.
+    # Removes only the lock file owned by the current process.
+    cache_dir = os.path.expanduser("~/.cache/modewerks")
+    pid_file = os.path.join(cache_dir, "modewerks.pid")
+    if os.path.exists(pid_file):
+        try:
+            with open(pid_file, "r") as f:
+                pid_str = f.read().strip()
+                if pid_str:
+                    lock_pid = int(pid_str)
+                    if lock_pid == os.getpid():
+                        os.remove(pid_file)
+                        log(f"Stale-instance guard: Cleaned up lock file for PID: {lock_pid}")
+        except FileNotFoundError:
+            pass
+        except Exception as e:
+            log(f"Stale-instance guard error during lock cleanup: {e}")
+
+
 # ---------------------------------------------------------------------------
 # Logging
 # ---------------------------------------------------------------------------
@@ -25,11 +112,11 @@ def log(msg):
                 if os.path.exists(path) and os.path.getsize(path) > 1024 * 1024:
                     with open(path, "w") as f:
                         f.write("[Log Truncated due to size]\n")
-            except Exception:
+            except (OSError, IOError):
                 pass
             with open(path, "a") as f:
                 f.write(msg + "\n")
-    except Exception:
+    except (OSError, IOError):
         pass
 
 
@@ -66,7 +153,7 @@ if not webkit_loaded:
             transient_for=None, flags=0,
             message_type=Gtk.MessageType.ERROR,
             buttons=Gtk.ButtonsType.OK,
-            text="Vim Companion Desklet: WebKit2 Missing"
+            text="modewerks: WebKit2 Missing"
         )
         dialog.format_secondary_text(
             "Install WebKit2 then reload:\n\n"
@@ -127,20 +214,28 @@ def save_config(x, y, w, h, layer):
 class VimDeskletWindow(Gtk.Window):
     def __init__(self, url):
         super().__init__(type=Gtk.WindowType.TOPLEVEL)
-        self.set_title("Vim Companion Desklet")
+        self.set_title("modewerks")
+
+        # Resolve the expected canonical dist/index.html path
+        expected_path = os.path.realpath(
+            os.path.join(os.path.dirname(os.path.realpath(__file__)), "dist/index.html")
+        )
+        from pathlib import Path
+        import urllib.parse
+        self._expected_uri = urllib.parse.unquote(Path(expected_path).as_uri())
 
         # ---- Load persisted geometry & layer --------------------------------
         cfg = load_config()
         win = cfg['window'] if 'window' in cfg else {}
 
         try:    saved_w = int(win.get('width',  DEFAULT_W))
-        except Exception: saved_w = DEFAULT_W
+        except (ValueError, TypeError): saved_w = DEFAULT_W
         try:    saved_h = int(win.get('height', DEFAULT_H))
-        except Exception: saved_h = DEFAULT_H
+        except (ValueError, TypeError): saved_h = DEFAULT_H
         try:    saved_x = int(win.get('x', -1))
-        except Exception: saved_x = -1
+        except (ValueError, TypeError): saved_x = -1
         try:    saved_y = int(win.get('y', -1))
-        except Exception: saved_y = -1
+        except (ValueError, TypeError): saved_y = -1
 
         # Default layer is 'below' (background) — user can change in the UI
         self._layer = win.get('layer', 'below')
@@ -313,8 +408,20 @@ class VimDeskletWindow(Gtk.Window):
 
         # Validate webview URI to prevent untrusted origins from calling desktop IPC
         uri = webview.get_uri()
-        if not (uri and uri.startswith("file://") and "modewerks" in uri):
-            log(f"Security Block: Blocked untrusted script dialog command from URI: {uri}")
+        clean_uri = uri
+        if uri:
+            import urllib.parse
+            clean_uri = urllib.parse.unquote(clean_uri)
+            for char in ('?', '#'):
+                if char in clean_uri:
+                    clean_uri = clean_uri.split(char, 1)[0]
+
+        if not (clean_uri and clean_uri == self._expected_uri):
+            masked_uri = uri
+            home_dir = os.path.expanduser("~")
+            if uri and uri.startswith("file://") and home_dir in uri:
+                masked_uri = uri.replace(home_dir, "~")
+            log(f"Security Block: Blocked untrusted script dialog command from URI: {masked_uri}")
             return False
 
         msg = dialog.get_message()
@@ -395,6 +502,9 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         url = sys.argv[1]
 
+    # Acquire lock and clean up stale instances
+    acquire_lock()
+
     try:
         log("Starting VimDeskletWindow — url: " + url)
         app = VimDeskletWindow(url)
@@ -404,6 +514,8 @@ if __name__ == "__main__":
         import traceback; log(traceback.format_exc())
         try:
             import webbrowser; webbrowser.open(url)
-        except Exception:
+        except (ImportError, OSError):
             pass
         sys.exit(1)
+    finally:
+        release_lock()

@@ -60,12 +60,59 @@ const SANDBOX_COMMANDS = [
   { id: ':wq', label: ':wq', desc: 'Write & Quit' }
 ];
 
+const SANDBOX_TASKS = [
+  {
+    stage: 1,
+    title: "Stage 1: Basic movements (h, j, k, l)",
+    instruction: "Move cursor to helloVim function on line 9 (row 8). Use j and k to move down and up.",
+    check: (row: number, col: number, buffer: string[]) => row === 8
+  },
+  {
+    stage: 2,
+    title: "Stage 2: Word-wise traversal (w, b)",
+    instruction: "Move the cursor to the word 'developer' on line 3 (row 2). Use 'w' to move word-by-word.",
+    check: (row: number, col: number, buffer: string[]) => row === 2 && col === 4
+  },
+  {
+    stage: 3,
+    title: "Stage 3: Editing text (x, r, i, a)",
+    instruction: "We misspelled editor as 'ViM' on line 5 (row 4). Move cursor to 'M' of 'ViM' and delete it using 'x'.",
+    check: (row: number, col: number, buffer: string[]) => {
+      const line = buffer[4] || '';
+      return !line.includes('ViM') && line.includes('Vi');
+    }
+  },
+  {
+    stage: 4,
+    title: "Stage 4: Inserting lines (o)",
+    instruction: "Open a new line below line 6 (row 5) by pressing 'o', then press Esc to return to Normal Mode.",
+    check: (row: number, col: number, buffer: string[]) => buffer.length > INITIAL_BUFFER.length
+  },
+  {
+    stage: 5,
+    title: "Stage 5: Search & Next (/, n)",
+    instruction: "Find the word 'wizardry' in the sandbox by using '/' search command or navigating directly to it (row 10, col 14).",
+    check: (row: number, col: number, buffer: string[]) => row === 10 && col === 14
+  },
+  {
+    stage: 6,
+    title: "Stage 6: Save & Quit (:w, :q)",
+    instruction: "Write the file by entering Command-line mode and typing ':w' followed by Enter.",
+    check: (row: number, col: number, buffer: string[]) => false
+  }
+];
+
 interface VimSandboxProps {
   onRecordCommand?: (cmd: string) => void;
   completedCommands?: string[];
+  selectedCommandId?: string | null;
 }
 
-export default function VimSandbox({ onRecordCommand, completedCommands = [] }: VimSandboxProps) {
+export default function VimSandbox({ 
+  onRecordCommand, 
+  completedCommands = [],
+  selectedCommandId 
+}: VimSandboxProps) {
   const [buffer, setBuffer] = useState<string[]>([...INITIAL_BUFFER]);
   const [cursorRow, setCursorRow] = useState<number>(2); // Start on first actual code line
   const [cursorCol, setCursorCol] = useState<number>(0);
@@ -80,6 +127,10 @@ export default function VimSandbox({ onRecordCommand, completedCommands = [] }: 
   
   // Replace character flag helper
   const [replaceModeActive, setReplaceModeActive] = useState<boolean>(false);
+
+  const [activeTaskIdx, setActiveTaskIdx] = useState<number>(0);
+  const activeTask = SANDBOX_TASKS[activeTaskIdx];
+  const [taskSuccess, setTaskSuccess] = useState<boolean>(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   
@@ -169,6 +220,19 @@ export default function VimSandbox({ onRecordCommand, completedCommands = [] }: 
     if (trimmed === ':w') {
       notify(':w', 'Saved sandbox buffer layout to memory cache.', 'success');
       onRecordCommand?.(':w');
+      
+      // Stage 6 task completion trigger
+      if (activeTaskIdx === 5) {
+        setTaskSuccess(true);
+        notify(':w', 'Saved file! Stage 6 task completed successfully!', 'success');
+        try {
+          const stored = localStorage.getItem('vim_sandbox_completed_commands');
+          const completed = stored ? JSON.parse(stored) : [];
+          const nextCompleted = Array.from(new Set([...completed, ':w', ':q', ':wq']));
+          localStorage.setItem('vim_sandbox_completed_commands', JSON.stringify(nextCompleted));
+          window.dispatchEvent(new CustomEvent('vim_sandbox_progress_updated'));
+        } catch {}
+      }
     } else if (trimmed === ':q') {
       notify(':q', 'Vim terminal closing simulated. Resetting buffer...', 'warn');
       onRecordCommand?.(':q');
@@ -177,12 +241,109 @@ export default function VimSandbox({ onRecordCommand, completedCommands = [] }: 
       notify(':wq', 'Changes persistent written. Reloading workbench details.', 'success');
       onRecordCommand?.(':wq');
       resetSandbox();
+      
+      // Stage 6 task completion trigger
+      if (activeTaskIdx === 5) {
+        setTaskSuccess(true);
+        try {
+          const stored = localStorage.getItem('vim_sandbox_completed_commands');
+          const completed = stored ? JSON.parse(stored) : [];
+          const nextCompleted = Array.from(new Set([...completed, ':w', ':q', ':wq']));
+          localStorage.setItem('vim_sandbox_completed_commands', JSON.stringify(nextCompleted));
+          window.dispatchEvent(new CustomEvent('vim_sandbox_progress_updated'));
+        } catch {}
+      }
     } else {
       notify(trimmed, `Command execution not supported: ${trimmed}. Try :w or :q`, 'warn');
     }
     setCommandText('');
     setMode('normal');
   };
+
+  // Task checking effect
+  useEffect(() => {
+    const activeTask = SANDBOX_TASKS[activeTaskIdx];
+    if (!activeTask) return;
+
+    const isCompleted = activeTask.check(cursorRow, cursorCol, buffer);
+    if (isCompleted && !taskSuccess) {
+      setTaskSuccess(true);
+      notify('Task Completed', `Great job! You achieved the goal for ${activeTask.title}!`, 'success');
+
+      try {
+        const stored = localStorage.getItem('vim_sandbox_completed_commands');
+        const completed = stored ? JSON.parse(stored) : [];
+        const taskCmds = [
+          ['h', 'j', 'k', 'l'],
+          ['w', 'b'],
+          ['x', 'r', 'i', 'a'],
+          ['o'],
+          ['/'],
+          [':w', ':q', ':wq']
+        ][activeTaskIdx];
+
+        const nextCompleted = Array.from(new Set([...completed, ...taskCmds]));
+        localStorage.setItem('vim_sandbox_completed_commands', JSON.stringify(nextCompleted));
+        window.dispatchEvent(new CustomEvent('vim_sandbox_progress_updated'));
+      } catch {}
+    } else if (!isCompleted && taskSuccess) {
+      setTaskSuccess(false);
+    }
+  }, [cursorRow, cursorCol, buffer, activeTaskIdx, taskSuccess]);
+
+  // Command load and external task load listeners
+  useEffect(() => {
+    const handleSetTask = (e: Event) => {
+      const taskIdx = (e as CustomEvent).detail;
+      if (typeof taskIdx === 'number' && taskIdx >= 0 && taskIdx < SANDBOX_TASKS.length) {
+        setActiveTaskIdx(taskIdx);
+        setTaskSuccess(false);
+      }
+    };
+    
+    const handleSetCommand = (e: Event) => {
+      const targetCmd = (e as CustomEvent).detail;
+      if (targetCmd) {
+        let matchingIdx = -1;
+        if (['h', 'j', 'k', 'l'].includes(targetCmd)) matchingIdx = 0;
+        else if (['w', 'b', 'e'].includes(targetCmd)) matchingIdx = 1;
+        else if (['x', 'r', 'i', 'a'].includes(targetCmd)) matchingIdx = 2;
+        else if (['o', 'O'].includes(targetCmd)) matchingIdx = 3;
+        else if (['/', '?', 'n', 'N'].includes(targetCmd)) matchingIdx = 4;
+        else if ([':w', ':q', ':wq'].includes(targetCmd)) matchingIdx = 5;
+
+        if (matchingIdx !== -1) {
+          setActiveTaskIdx(matchingIdx);
+          setTaskSuccess(false);
+        }
+        notify('Command Load', `Target command '${targetCmd}' loaded. Match with Task stage ${matchingIdx + 1}.`, 'info');
+      }
+    };
+
+    window.addEventListener('vim_sandbox_set_task', handleSetTask);
+    window.addEventListener('vim_sandbox_set_command', handleSetCommand);
+
+    try {
+      const storedTask = localStorage.getItem('vim_sandbox_target_task');
+      if (storedTask) {
+        setActiveTaskIdx(parseInt(storedTask, 10));
+        setTaskSuccess(false);
+        localStorage.removeItem('vim_sandbox_target_task');
+      }
+      
+      const storedCmd = localStorage.getItem('vim_sandbox_target_command');
+      if (storedCmd) {
+        localStorage.removeItem('vim_sandbox_target_command');
+        const event = new CustomEvent('vim_sandbox_set_command', { detail: storedCmd });
+        window.dispatchEvent(event);
+      }
+    } catch {}
+
+    return () => {
+      window.removeEventListener('vim_sandbox_set_task', handleSetTask);
+      window.removeEventListener('vim_sandbox_set_command', handleSetCommand);
+    };
+  }, []);
 
   // Keyboard capture effects
   useEffect(() => {
@@ -405,13 +566,69 @@ export default function VimSandbox({ onRecordCommand, completedCommands = [] }: 
         </div>
       </div>
 
+      {/* Active Practice Task Box */}
+      <div className="bg-az-bg-alt border border-az-border-subtle p-3.5 rounded-xl flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 font-sans">
+        <div className="flex-1 space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-mono font-bold text-az-active uppercase tracking-wider bg-az-active/10 px-1.5 py-0.5 rounded">
+              Active Task
+            </span>
+            <span className="text-xs font-bold text-az-text-heading">
+              {activeTask.title}
+            </span>
+          </div>
+          <p className="text-xs text-az-text-muted">
+            {activeTask.instruction}
+          </p>
+        </div>
+        <div className="flex items-center gap-3 self-center sm:self-auto">
+          {taskSuccess ? (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-az-success/10 border border-az-success/30 text-az-success font-bold text-xs">
+              <CheckCircle className="w-4 h-4" />
+              <span>Goal Met!</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-az-bg-canvas border border-az-border-subtle text-az-text-muted text-xs">
+              <span className="w-1.5 h-1.5 rounded-full bg-az-warning animate-pulse" />
+              <span>In Progress...</span>
+            </div>
+          )}
+
+          {/* Task picker buttons (Stage 1 to 6) */}
+          <div className="flex items-center gap-1 bg-az-bg-canvas p-0.5 rounded-lg border border-az-border-subtle font-mono text-[10.5px]">
+            {SANDBOX_TASKS.map((task, idx) => (
+              <button
+                key={task.stage}
+                onClick={() => {
+                  setActiveTaskIdx(idx);
+                  setTaskSuccess(false);
+                  notify('Task Switch', `Selected ${task.title}. Goal: check instruction.`, 'info');
+                }}
+                className={`w-6 h-6 rounded flex items-center justify-center font-bold cursor-pointer transition-all ${
+                  activeTaskIdx === idx 
+                    ? 'bg-az-active text-az-bg-canvas' 
+                    : 'text-az-text-muted hover:text-az-text-heading hover:bg-az-bg-soft'
+                }`}
+                title={task.title}
+              >
+                {task.stage}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* Grid: Simulator Terminal on Left, Quick Help / Virtual Buttons on Right */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-stretch">
         
         {/* SIMULATOR SCREEN TERMINAL (Left) */}
         <div 
           ref={containerRef}
-          className="md:col-span-8 bg-az-bg-canvas text-az-text-primary p-5 rounded-2xl border border-az-border-subtle shadow-2xl font-mono text-[11px] sm:text-xs min-h-[310px] relative flex flex-col justify-between"
+          className={`md:col-span-8 bg-az-bg-canvas text-az-text-primary p-5 rounded-2xl border shadow-2xl font-mono text-[11px] sm:text-xs min-h-[310px] relative flex flex-col justify-between transition-all duration-300 ${
+            captureKeys 
+              ? 'border-az-active ring-2 ring-az-active/30 shadow-[0_0_20px_rgba(206,218,74,0.15)]' 
+              : 'border-az-border-subtle'
+          }`}
         >
           {/* Terminal Window Chrome bar */}
           <div className="absolute top-3 left-4 right-4 flex items-center justify-between border-b border-az-border-subtle pb-2 mb-3 select-none">
@@ -526,7 +743,11 @@ export default function VimSandbox({ onRecordCommand, completedCommands = [] }: 
         </div>
 
         {/* VIRTUAL MOTION BUTTONS (Right Panel) */}
-        <div className="md:col-span-4 bg-az-bg-alt border border-az-border-subtle p-4 rounded-xl flex flex-col justify-between shadow-sm">
+        <div className={`md:col-span-4 bg-az-bg-alt border border-az-border-subtle p-4 rounded-xl flex flex-col justify-between shadow-sm transition-all duration-300 ${
+          captureKeys 
+            ? 'opacity-40 hover:opacity-60 pointer-events-none sm:pointer-events-auto filter blur-[0.2px]' 
+            : 'opacity-100'
+        }`}>
           <div className="space-y-4">
             
             {/* Title / Help details */}

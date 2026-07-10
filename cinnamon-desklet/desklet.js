@@ -2,6 +2,12 @@ const Desklet = imports.ui.desklet;
 const St = imports.gi.St;
 const GLib = imports.gi.GLib;
 
+const CONSTANTS = {
+    KILL_TIMEOUT_MS: 2000,
+    SIGTERM: "-15",
+    SIGKILL: "-9"
+};
+
 function ModewerksDesklet(metadata, desklet_id) {
     this._init(metadata, desklet_id);
 }
@@ -31,13 +37,18 @@ ModewerksDesklet.prototype = {
     },
 
     startWebViewProcess: function() {
+        if (this.child_pid !== null) {
+            global.log("modewerks: Duplicate launch prevented (already running PID: " + this.child_pid + ")");
+            return;
+        }
+
         try {
             // Get current directory path of desklet files
             let deskletPath = this.metadata.path;
             let scriptPath = deskletPath + "/desklet_webview.py";
             let indexPath = "file://" + deskletPath + "/dist/index.html";
             
-            global.log("Launching modewerks webview. Script Path: " + scriptPath);
+            global.log("modewerks: Launch attempted. Script Path: " + scriptPath);
             
             let success = false;
             let pid = null;
@@ -54,7 +65,7 @@ ModewerksDesklet.prototype = {
                 success = res[0];
                 pid = res[1];
             } catch (e) {
-                global.log("Standard python3 spawn failed: " + e.toString() + ". Attempting fallback to /usr/bin/python3...");
+                global.log("modewerks: Standard python3 spawn failed: " + e.toString() + ". Attempting fallback to /usr/bin/python3...");
             }
             
             // Fallback: Try spawning with explicit absolute path to /usr/bin/python3
@@ -70,41 +81,69 @@ ModewerksDesklet.prototype = {
                     success = res[0];
                     pid = res[1];
                 } catch (err) {
-                    global.logError("Fallback absolute python3 spawn failed: " + err.toString());
+                    global.logError("modewerks: Fallback absolute python3 spawn failed: " + err.toString());
                 }
             }
             
             if (success) {
                 this.child_pid = pid;
+                global.log("modewerks: Launch success. Launched isolated WebView (PID: " + pid + ")");
                 GLib.child_watch_add(GLib.PRIORITY_DEFAULT, pid, (pid, status) => {
                     GLib.spawn_close_pid(pid);
-                    this.child_pid = null;
-                    global.log("modewerks WebView process exited with status: " + status);
+                    if (this.child_pid === pid) {
+                        this.child_pid = null;
+                    }
+                    global.log("modewerks: Child exit. WebView process exited with status: " + status);
                 });
-                global.log("Successfully launched isolated modewerks WebView (PID: " + pid + ")");
             } else {
-                global.logError("Failed to launch Cinnamon modewerks child process");
+                global.logError("modewerks: Launch failure. Failed to launch Cinnamon modewerks child process");
             }
         } catch (e) {
-            global.logError("Exception starting modewerks launcher script: " + e.toString());
+            global.logError("modewerks: Exception starting modewerks launcher script: " + e.toString());
         }
     },
 
     on_desklet_removed: function() {
+        // NOTE: Process groups via child_setup callback in GLib.spawn_async are unsafe/unstable in GJS
+        // because running JS code between fork() and exec() interacts poorly with the JS engine's garbage collection.
+        // Therefore, the safer PID-based fallback is used for child lifecycle tracking and signal delivery.
+
         // Terminate the background web view when desklet is taken off wallpaper
         if (this.child_pid) {
+            let pidToKill = this.child_pid;
+            global.log("modewerks: Child termination requested for PID: " + pidToKill);
             try {
+                // Send SIGTERM first for clean shutdown
                 GLib.spawn_async(
                     null,
-                    ["kill", this.child_pid.toString()],
+                    ["kill", CONSTANTS.SIGTERM, pidToKill.toString()],
                     null,
                     GLib.SpawnFlags.SEARCH_PATH,
                     null
                 );
-                global.log("modewerks background web view cleanly stopped.");
             } catch (e) {
-                global.logError("Error during target child termination: " + e.toString());
+                global.logError("modewerks: Error sending SIGTERM: " + e.toString());
             }
+
+            // Fallback to SIGKILL if process survives
+            GLib.timeout_add(GLib.PRIORITY_DEFAULT, CONSTANTS.KILL_TIMEOUT_MS, () => {
+                if (this.child_pid === pidToKill) {
+                    global.log("modewerks: Child force-killed (PID: " + pidToKill + ")");
+                    try {
+                        GLib.spawn_async(
+                            null,
+                            ["kill", CONSTANTS.SIGKILL, pidToKill.toString()],
+                            null,
+                            GLib.SpawnFlags.SEARCH_PATH,
+                            null
+                        );
+                    } catch (e) {
+                        global.logError("modewerks: Error sending SIGKILL: " + e.toString());
+                    }
+                    this.child_pid = null;
+                }
+                return GLib.SOURCE_REMOVE; // Run once, do not repeat
+            });
         }
     }
 };

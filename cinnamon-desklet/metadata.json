@@ -1,6 +1,6 @@
 {
   "uuid": "modewerks@cinnamon.org",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "name": "modewerks",
   "description": "modewerks is an offline Cinnamon desklet for Vim and Neovim command reference, mode-aware lookup, daily tips, sandbox practice, and configuration help.",
   "prevent-decorations": true,
